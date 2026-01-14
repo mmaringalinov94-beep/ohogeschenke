@@ -1,0 +1,429 @@
+# README
+
+This repository contains a simple **multi-page static website** for **Ohogeschenke** (English / German). It's designed to be warm & artistic, mobile-friendly, and easy to maintain. Drop your product photos into `uploads/products/` and update `uploads/products/products.json` to add new items.
+
+---
+
+## File structure (all files included below)
+
+- `index.html` — Home / Startseite
+- `products.html` — Products / Produkte (loads `uploads/products/products.json`)
+- `about.html` — About / Über uns
+- `contact.html` — Contact / Kontakt (contact form builds a mailto: link)
+- `styles.css` — All styles (responsive)
+- `app.js` — Handles language switcher, menu, and products loading
+- `uploads/products/products.json` — Example product metadata (you should edit)
+- `assets/` — placeholder for logos or common images (you can replace)
+
+---
+
+<!-- index.html -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ohogeschenke — Art & Wine Racks</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-lang="en">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Ohogeschenke</a>
+      <nav class="main-nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="products.html" data-i18n="nav.products">Products</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      </nav>
+      <div class="lang-switch">
+        <button id="lang-en" aria-label="English">EN</button>
+        <button id="lang-de" aria-label="Deutsch">DE</button>
+      </div>
+      <button class="burger" aria-label="menu">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <h1 data-i18n="hero.title">Handmade wine racks & paintings</h1>
+        <p data-i18n="hero.subtitle">Warm, artistic pieces crafted with passion — perfect for your home or as a gift.</p>
+        <a class="btn" href="products.html" data-i18n="hero.cta">Browse Products</a>
+      </div>
+    </section>
+
+    <section class="featured container">
+      <h2 data-i18n="featured.title">Featured product</h2>
+      <div class="card featured-card">
+        <img src="uploads/products/sample-rack.jpg" alt="Featured wine rack">
+        <div class="card-body">
+          <h3>Metal Wine Rack — Classic</h3>
+          <p>Sturdy metal rack with space for bottles and glasses. Perfect centerpiece for modern interiors.</p>
+          <a class="btn" href="contact.html?product=Metal%20Wine%20Rack" data-i18n="featured.inquire">Inquire</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> Ohogeschenke — <span data-i18n="footer.rights">All rights reserved.</span></p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- products.html -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Products — Ohogeschenke</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-lang="en">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Ohogeschenke</a>
+      <nav class="main-nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="products.html" data-i18n="nav.products">Products</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      </nav>
+      <div class="lang-switch">
+        <button id="lang-en" aria-label="English">EN</button>
+        <button id="lang-de" aria-label="Deutsch">DE</button>
+      </div>
+      <button class="burger" aria-label="menu">☰</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="products.title">Products</h1>
+    <p class="lead" data-i18n="products.lead">Browse our wine racks and paintings. Click an item to open an inquiry form.</p>
+
+    <div id="products-grid" class="grid"></div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year2"></span> Ohogeschenke</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- about.html -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>About — Ohogeschenke</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-lang="en">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Ohogeschenke</a>
+      <nav class="main-nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="products.html" data-i18n="nav.products">Products</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      </nav>
+      <div class="lang-switch">
+        <button id="lang-en" aria-label="English">EN</button>
+        <button id="lang-de" aria-label="Deutsch">DE</button>
+      </div>
+      <button class="burger" aria-label="menu">☰</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 data-i18n="about.title">About Ohogeschenke</h1>
+    <p data-i18n="about.p1">We craft handmade wine racks and framed paintings. Each piece is made with care — ideal as a gift or for your own home.</p>
+    <p data-i18n="about.p2">Based in Germany. If you'd like custom work, contact us for a quote.</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year3"></span> Ohogeschenke</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- contact.html -->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contact — Ohogeschenke</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-lang="en">
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">Ohogeschenke</a>
+      <nav class="main-nav">
+        <a href="index.html" data-i18n="nav.home">Home</a>
+        <a href="products.html" data-i18n="nav.products">Products</a>
+        <a href="about.html" data-i18n="nav.about">About</a>
+        <a href="contact.html" data-i18n="nav.contact">Contact</a>
+      </nav>
+      <div class="lang-switch">
+        <button id="lang-en" aria-label="English">EN</button>
+        <button id="lang-de" aria-label="Deutsch">DE</button>
+      </div>
+      <button class="burger" aria-label="menu">☰</button>
+    </div>
+  </header>
+
+  <main class="container contact-page">
+    <h1 data-i18n="contact.title">Contact</h1>
+    <p data-i18n="contact.lead">Send an inquiry about a product or ask for a custom order.</p>
+
+    <form id="contact-form" class="contact-form">
+      <label for="name">Name</label>
+      <input id="name" name="name" required>
+
+      <label for="email">Email</label>
+      <input id="email" type="email" name="email" required>
+
+      <label for="phone">Phone</label>
+      <input id="phone" name="phone">
+
+      <label for="product">Product (optional)</label>
+      <input id="product" name="product">
+
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="5"></textarea>
+
+      <button class="btn" type="submit" data-i18n="contact.send">Send inquiry</button>
+    </form>
+
+    <p class="note" data-i18n="contact.note">The form will open your email client with a prefilled message (no online payment).</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year4"></span> Ohogeschenke</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+<!-- styles.css -->
+
+:root{
+  --bg: #faf6f3;
+  --card: #fff;
+  --accent: #8b1f1f; /* wine-like red */
+  --muted: #6b6b6b;
+  --wood: #7a4f3a;
+}
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:var(--bg); color:#222}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+.site-header{background:linear-gradient(90deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)); color:#fff}
+.header-inner{display:flex;align-items:center;gap:16px}
+.logo{font-weight:700;font-size:20px;color:#fff;text-decoration:none;padding:14px 8px}
+.main-nav{display:flex;gap:12px;margin-left:12px}
+.main-nav a{color:#fff;text-decoration:none;padding:12px;border-radius:6px}
+.main-nav a:hover{background:rgba(255,255,255,0.06)}
+.lang-switch{margin-left:auto;display:flex;gap:6px}
+.lang-switch button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.15);padding:6px 8px;border-radius:6px}
+.burger{display:none;background:transparent;border:0;color:#fff;font-size:20px;margin-left:8px}
+.hero{padding:60px 0;background-image:linear-gradient(180deg, rgba(139,31,31,0.08), rgba(0,0,0,0));}
+.hero-inner{display:flex;flex-direction:column;gap:12px}
+.hero h1{font-size:36px;margin:0}
+.btn{display:inline-block;padding:10px 18px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none}
+.featured{padding:28px 0}
+.card{background:var(--card);border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.08);overflow:hidden}
+.featured-card{display:flex;gap:18px;align-items:center}
+.featured-card img{width:320px;height:320px;object-fit:cover}
+.card-body{padding:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;margin-top:18px}
+.product-card{background:var(--card);border-radius:10px;padding:12px;box-shadow:0 6px 16px rgba(0,0,0,0.06)}
+.product-card img{width:100%;height:180px;object-fit:cover;border-radius:6px}
+.product-card h3{margin:10px 0 6px}
+.site-footer{padding:20px 0;background:#fff;margin-top:36px}
+.contact-form{max-width:720px;display:grid;gap:10px}
+input,textarea{padding:10px;border-radius:8px;border:1px solid #ddd}
+.note{font-size:13px;color:var(--muted)}
+@media(max-width:800px){
+  .featured-card{flex-direction:column}
+  .burger{display:block}
+  .main-nav{display:none}
+}
+
+
+/* small decorative accents */
+.logo:after{content:"";display:inline-block;height:8px;width:8px;background:var(--accent);margin-left:8px;border-radius:4px}
+
+
+/* subtle wood border for product images */
+.product-card img{border:6px solid rgba(122,79,58,0.12)}
+
+
+/* accessibility focus */
+button:focus, a:focus, input:focus, textarea:focus{outline:3px solid rgba(139,31,31,0.15)}
+
+
+<!-- app.js -->
+
+const translations = {
+  en: {
+    'nav.home':'Home','nav.products':'Products','nav.about':'About','nav.contact':'Contact',
+    'hero.title':'Handmade wine racks & paintings','hero.subtitle':'Warm, artistic pieces crafted with passion — perfect for your home or as a gift.','hero.cta':'Browse Products',
+    'featured.title':'Featured product','featured.inquire':'Inquire',
+    'products.title':'Products','products.lead':'Browse our wine racks and paintings. Click an item to open an inquiry form.',
+    'about.title':'About Ohogeschenke','about.p1':'We craft handmade wine racks and framed paintings. Each piece is made with care — ideal as a gift or for your own home.','about.p2':'Based in Germany. If you\'d like custom work, contact us for a quote.',
+    'contact.title':'Contact','contact.lead':'Send an inquiry about a product or ask for a custom order.','contact.send':'Send inquiry','contact.note':'The form will open your email client with a prefilled message (no online payment).',
+    'footer.rights':'All rights reserved.'
+  },
+  de: {
+    'nav.home':'Startseite','nav.products':'Produkte','nav.about':'Über uns','nav.contact':'Kontakt',
+    'hero.title':'Handgefertigte Weinregale & Gemälde','hero.subtitle':'Warme, künstlerische Stücke mit Leidenschaft gefertigt — perfekt für Ihr Zuhause oder als Geschenk.','hero.cta':'Produkte ansehen',
+    'featured.title':'Ausgewähltes Produkt','featured.inquire':'Anfrage',
+    'products.title':'Produkte','products.lead':'Durchsuchen Sie unsere Weinregale und Gemälde. Klicken Sie auf ein Element, um ein Anfrageformular zu öffnen.',
+    'about.title':'Über Ohogeschenke','about.p1':'Wir fertigen handgefertigte Weinregale und gerahmte Gemälde. Jedes Stück wird mit Sorgfalt gefertigt — ideal als Geschenk oder für Ihr eigenes Zuhause.','about.p2':'Mit Sitz in Deutschland. Wenn Sie Sonderanfertigungen wünschen, kontaktieren Sie uns für ein Angebot.',
+    'contact.title':'Kontakt','contact.lead':'Senden Sie eine Anfrage zu einem Produkt oder fragen Sie nach einer Sonderanfertigung.','contact.send':'Anfrage senden','contact.note':'Das Formular öffnet Ihren E-Mail-Client mit einer vorausgefüllten Nachricht (keine Online-Zahlung).',
+    'footer.rights':'Alle Rechte vorbehalten.'
+  }
+};
+
+function setTextByLang(lang){
+  document.documentElement.lang = (lang === 'de') ? 'de' : 'en';
+  document.body.setAttribute('data-lang', lang);
+  const els = document.querySelectorAll('[data-i18n]');
+  els.forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(translations[lang] && translations[lang][key]) el.textContent = translations[lang][key];
+  });
+}
+
+// language buttons
+document.addEventListener('DOMContentLoaded', ()=>{
+  const enBtn = document.getElementById('lang-en');
+  const deBtn = document.getElementById('lang-de');
+  const saved = localStorage.getItem('site-lang') || 'en';
+  setTextByLang(saved);
+  enBtn?.addEventListener('click', ()=>{ localStorage.setItem('site-lang','en'); setTextByLang('en'); });
+  deBtn?.addEventListener('click', ()=>{ localStorage.setItem('site-lang','de'); setTextByLang('de'); });
+
+  // fill years
+  document.getElementById('year')?.textContent = new Date().getFullYear();
+  document.getElementById('year2')?.textContent = new Date().getFullYear();
+  document.getElementById('year3')?.textContent = new Date().getFullYear();
+  document.getElementById('year4')?.textContent = new Date().getFullYear();
+
+  // mobile menu
+  document.querySelector('.burger')?.addEventListener('click', ()=>{
+    const nav = document.querySelector('.main-nav');
+    if(nav.style.display === 'flex') nav.style.display = '';
+    else nav.style.display = 'flex';
+  });
+
+  // Contact form: open mailto with prefilled content
+  const form = document.getElementById('contact-form');
+  if(form){
+    const urlParams = new URLSearchParams(window.location.search);
+    const productFromQuery = urlParams.get('product') || '';
+    document.getElementById('product').value = productFromQuery;
+
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = encodeURIComponent(document.getElementById('name').value);
+      const email = encodeURIComponent(document.getElementById('email').value);
+      const phone = encodeURIComponent(document.getElementById('phone').value);
+      const product = encodeURIComponent(document.getElementById('product').value);
+      const message = encodeURIComponent(document.getElementById('message').value);
+
+      const subject = encodeURIComponent(`Product inquiry: ${decodeURIComponent(product) || 'General'}`);
+      const body = encodeURIComponent(`Name: ${decodeURIComponent(name)}\nEmail: ${decodeURIComponent(email)}\nPhone: ${decodeURIComponent(phone)}\nProduct: ${decodeURIComponent(product)}\n\nMessage:\n${decodeURIComponent(message)}`);
+
+      // Use your shop email here
+      const shopEmail = 'yourshop@example.com';
+      const mailto = `mailto:${shopEmail}?subject=${subject}&body=${body}`;
+      window.location.href = mailto;
+    });
+  }
+
+  // Products page: load products.json
+  const productsGrid = document.getElementById('products-grid');
+  if(productsGrid){
+    fetch('uploads/products/products.json')
+      .then(r=>r.json())
+      .then(data=>{
+        data.products.forEach(p=>{
+          const div = document.createElement('div');
+          div.className = 'product-card';
+          div.innerHTML = `
+            <img src="uploads/products/${p.image}" alt="${p.title}">
+            <h3>${p.title}</h3>
+            <p>${p.short}</p>
+            <a class="btn" href="contact.html?product=${encodeURIComponent(p.title)}">Inquire</a>
+          `;
+          productsGrid.appendChild(div);
+        });
+      })
+      .catch(err=>{
+        productsGrid.innerHTML = '<p style="color:#a00">Cannot load products. Please upload uploads/products/products.json and images.</p>';
+        console.error(err);
+      });
+  }
+});
+
+
+/* Example products.json to place in uploads/products/products.json */
+
+/*
+{
+  "products": [
+    {"id":1, "title":"Classic Metal Rack", "short":"Holds 8 bottles + glasses.", "image":"sample-rack.jpg"},
+    {"id":2, "title":"Modern Circle Rack", "short":"Artistic circular design.", "image":"sample-rack-2.jpg"},
+    {"id":3, "title":"Abstract Painting - Red", "short":"Acrylic on canvas, 40x50cm.", "image":"painting-red.jpg"}
+  ]
+}
+*/
+
+
+---
+
+## Deployment notes
+
+1. Place the files on any static host (Vercel, Netlify, GitHub Pages) or a small webspace.
+2. Create folder `uploads/products/` and upload your product images there.
+3. Create `uploads/products/products.json` (see example) and list your images + titles + short descriptions.
+4. Edit `app.js` and replace `yourshop@example.com` with your actual shop email so inquiries open to the correct address.
+
+---
+
+## Next steps I can do for you (tell me which you want)
+- Convert the static site into a small CMS using Netlify CMS or a simple JSON-admin so you can upload images via a UI.
+- Add a lightweight backend to receive contact forms (so you don't rely on mailto:).
+- Prepare the site for German-first or English-first defaults.
+
+
