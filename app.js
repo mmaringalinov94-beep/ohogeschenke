@@ -291,3 +291,90 @@ function render() {
 }
 
 render();
+  { order: 37, title: "Eiffelturm",            price: "40,00 €",
+    variants: [
+      { label: "Standard",     img: "images/art/product38.jpg" },
+      { label: "Dunkel Gold",  img: "images/art/product65.jpg" }
+    ]
+  },
+
+  { order: 38, title: "Landschaft",            price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product39.jpg" },
+      { label: "Anthrazit",  img: "images/art/product66.jpg" }
+    ]
+  },
+
+  { order: 39, title: "Real Madrid CF",        price: "35,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product40.jpg" },
+      { label: "Anthrazit",  img: "images/art/product55.jpg" }
+    ]
+  },
+
+  { order: 40, title: "Fischen",               price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product41.jpg" },
+      { label: "Anthrazit",  img: "images/art/product73.jpg" }
+    ]
+  },
+
+  { order: 41, title: "Frau mit einem Tropfen", price: "40,00 €", img: "images/art/product42.jpg" },
+
+  { order: 42, title: "Frau auf einer Schaukel", price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product44.jpg" },
+      { label: "Anthrazit",  img: "images/art/product84.jpg" }
+    ]
+  },
+
+  { order: 43, title: "Das Kamel",             price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product45.jpg" },
+      { label: "Anthrazit",  img: "images/art/product85.jpg" }
+    ]
+  },
+
+  { order: 44, title: "Der springende Fisch",  price: "40,00 €",
+    variants: [
+      { label: "Standard",     img: "images/art/product46.jpg" },
+      { label: "Dunkel Gold",  img: "images/art/product64.jpg" }
+    ]
+  },
+
+  { order: 45, title: "Bear",                  price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product47.jpg" },
+      { label: "Anthrazit",  img: "images/art/product74.jpg" }
+    ]
+  },
+
+  { order: 46, title: "Manchester United",     price: "35,00 €",
+    variants: [
+      { label: "Standard",  img: "images/art/product48.jpg" },
+      { label: "Gold",      img: "images/art/product56.jpg" }
+    ]
+  },
+
+  { order: 47, title: "Borussia Dortmund",     price: "35,00 €", img: "images/art/product49.jpg" },
+
+  { order: 48, title: "Das Schloss",           price: "40,00 €",
+    variants: [
+      { label: "Standard",   img: "images/art/product51.jpg" },
+      { label: "Anthrazit",  img: "images/art/product69.jpg" }
+    ]
+  },
+
+  { order: 49, title: "Liverpool",             price: "35,00 €", img: "images/art/product58.jpg" },
+
+  { order: 50, title: "Baum des Lebens",       price: "45,00 €",
+    variants: [
+      { label: "Anthrazit",  img: "images/art/product61.jpg" }
+      // Когато качиш златната и сивата снимка, добавяме:
+      // { label: "Gold", img: "images/art/productXX.jpg" },
+      // { label: "Grau", img: "images/art/productYY.jpg" }
+    ]
+  },
+
+  { order: 51, title: "Die Freiheitsstatue",   price: "40,00 €", img: "images/art/product83.jpg" }
+
