@@ -33,10 +33,16 @@ if (productsEl) {
         <div><b>${p.title}</b></div>
         <div class="price">${p.price}</div>
 
-        <a class="btn" href="mailto:mmaringalinov94@gmail.com?subject=Bestellung:%20${encodeURIComponent(p.title)}&body=Hallo,%0AIch%20möchte%20dieses%20Produkt%20bestellen:%0A${encodeURIComponent(p.title)}%0APreis:%20${encodeURIComponent(p.price)}%0A%0AVielen%20Dank!">
-          E-Mail
-        </a>
-      </div>
-    </div>
-  `).join("");
+       <div class="actions">
+  <a class="btn" href="mailto:mmaringalinov94@gmail.com?subject=Bestellung:%20${encodeURIComponent(p.title)}&body=Hallo,%0AIch%20möchte%20dieses%20Produkt%20bestellen:%0A${encodeURIComponent(p.title)}%0APreis:%20${encodeURIComponent(p.price)}%0A%0AVielen%20Dank!">
+    E-Mail
+  </a>
+
+  <a class="btn whatsapp" target="_blank"
+     href="https://wa.me/4915226216596?text=${encodeURIComponent('Hallo! Ich möchte dieses Produkt bestellen: ' + p.title + ' | Preis: ' + p.price)}>
+    WhatsApp
+  </a>
+</div>
+
 }
+
