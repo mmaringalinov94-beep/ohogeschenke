@@ -11,7 +11,7 @@ const demoProducts = [
   { title: "Weinflasche Deko", price: "50,00 €", img: "images/wein/product4.jpg" },
   { title: "Amphora Geschenkset", price: "50,00 €", img: "images/wein/product5.jpg" },
 
-  // 🖼️ Bilder / Kunst
+  // 🖼️ Bilder / Kunst (пример 10)
   { title: "Bild 1", price: "50,00 €", img: "images/art/product1.jpg" },
   { title: "Bild 2", price: "50,00 €", img: "images/art/product2.jpg" },
   { title: "Bild 3", price: "50,00 €", img: "images/art/product3.jpg" },
@@ -25,6 +25,7 @@ const demoProducts = [
 ];
 
 const productsEl = document.getElementById("products");
+
 if (productsEl) {
   productsEl.innerHTML = demoProducts.map(p => `
     <div class="product">
@@ -33,16 +34,18 @@ if (productsEl) {
         <div><b>${p.title}</b></div>
         <div class="price">${p.price}</div>
 
-       <div class="actions">
-  <a class="btn" href="mailto:mmaringalinov94@gmail.com?subject=Bestellung:%20${encodeURIComponent(p.title)}&body=Hallo,%0AIch%20möchte%20dieses%20Produkt%20bestellen:%0A${encodeURIComponent(p.title)}%0APreis:%20${encodeURIComponent(p.price)}%0A%0AVielen%20Dank!">
-    E-Mail
-  </a>
+        <div class="actions">
+          <a class="btn" href="mailto:mmaringalinov94@gmail.com?subject=Bestellung:%20${encodeURIComponent(p.title)}&body=Hallo,%0AIch%20möchte%20dieses%20Produkt%20bestellen:%0A${encodeURIComponent(p.title)}%0APreis:%20${encodeURIComponent(p.price)}%0A%0AVielen%20Dank!">
+            E-Mail
+          </a>
 
-  <a class="btn whatsapp" target="_blank"
-     href="https://wa.me/4915226216596?text=${encodeURIComponent('Hallo! Ich möchte dieses Produkt bestellen: ' + p.title + ' | Preis: ' + p.price)}>
-    WhatsApp
-  </a>
-</div>
+          <a class="btn whatsapp" target="_blank" rel="noopener"
+             href="https://wa.me/4915226216596?text=${encodeURIComponent('Hallo! Ich möchte dieses Produkt bestellen: ' + p.title + ' | Preis: ' + p.price)}">
+            WhatsApp
+          </a>
+        </div>
 
+      </div>
+    </div>
+  `).join("");
 }
-
