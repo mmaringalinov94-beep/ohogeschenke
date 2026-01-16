@@ -3,31 +3,32 @@ document.querySelectorAll('#year').forEach(el => {
   el.textContent = new Date().getFullYear();
 });
 
-const demoProducts = [
-  // 🍷 Weinständer
-  { title: "Herz-Weinflaschenhalter", price: "50,00 €", img: "images/wein/product1.jpg" },
-  { title: "Große Weinflasche (Dekor)", price: "120,00 €", img: "images/wein/product2.jpg" },
-  { title: "Gitarren-Weinflaschenhalter", price: "50,00 €", img: "images/wein/product3.jpg" },
-  { title: "Weinflasche Deko", price: "50,00 €", img: "images/wein/product4.jpg" },
-  { title: "Amphora Geschenkset", price: "50,00 €", img: "images/wein/product5.jpg" },
+const WHATSAPP = "4915226216596";
+const EMAIL = "mmaringalinov94@gmail.com";
 
-  // 🖼️ Bilder / Kunst (пример 10)
-  { title: "Bild 1", price: "50,00 €", img: "images/art/product1.jpg" },
-  { title: "Bild 2", price: "50,00 €", img: "images/art/product2.jpg" },
-  { title: "Bild 3", price: "50,00 €", img: "images/art/product3.jpg" },
-  { title: "Bild 4", price: "50,00 €", img: "images/art/product4.jpg" },
-  { title: "Bild 5", price: "50,00 €", img: "images/art/product5.jpg" },
-  { title: "Bild 6", price: "50,00 €", img: "images/art/product6.jpg" },
-  { title: "Bild 7", price: "50,00 €", img: "images/art/product7.jpg" },
-  { title: "Bild 8", price: "50,00 €", img: "images/art/product8.jpg" },
-  { title: "Bild 9", price: "50,00 €", img: "images/art/product9.jpg" },
-  { title: "Bild 10", price: "50,00 €", img: "images/art/product10.jpg" }
-];
+function mailtoLink(title, price) {
+  const subject = `Bestellung: ${title}`;
+  const body = `Hallo,%0A%0AIch möchte dieses Produkt bestellen:%0A${title}%0APreis: ${price}%0A%0AVielen Dank!`;
+  return `mailto:${EMAIL}?subject=${encodeURIComponent(subject)}&body=${body}`;
+}
 
-const productsEl = document.getElementById("products");
+function whatsappLink(title, price) {
+  const text = `Hallo! Ich möchte dieses Produkt bestellen: ${title} | Preis: ${price}`;
+  return `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
+}
 
-if (productsEl) {
-  productsEl.innerHTML = demoProducts.map(p => `
+function renderSection(container, heading, items) {
+  const section = document.createElement("section");
+  section.className = "cat";
+
+  const h2 = document.createElement("h2");
+  h2.textContent = heading;
+  section.appendChild(h2);
+
+  const grid = document.createElement("div");
+  grid.className = "products";
+
+  grid.innerHTML = items.map(p => `
     <div class="product">
       <img src="${p.img}" alt="${p.title}" onerror="this.style.display='none'">
       <div class="pbody">
@@ -35,17 +36,40 @@ if (productsEl) {
         <div class="price">${p.price}</div>
 
         <div class="actions">
-          <a class="btn" href="mailto:mmaringalinov94@gmail.com?subject=Bestellung:%20${encodeURIComponent(p.title)}&body=Hallo,%0AIch%20möchte%20dieses%20Produkt%20bestellen:%0A${encodeURIComponent(p.title)}%0APreis:%20${encodeURIComponent(p.price)}%0A%0AVielen%20Dank!">
-            E-Mail
-          </a>
-
-          <a class="btn whatsapp" target="_blank" rel="noopener"
-             href="https://wa.me/4915226216596?text=${encodeURIComponent('Hallo! Ich möchte dieses Produkt bestellen: ' + p.title + ' | Preis: ' + p.price)}">
-            WhatsApp
-          </a>
+          <a class="btn" href="${mailtoLink(p.title, p.price)}">E-Mail</a>
+          <a class="btn whatsapp" target="_blank" rel="noopener" href="${whatsappLink(p.title, p.price)}">WhatsApp</a>
         </div>
-
       </div>
     </div>
   `).join("");
+
+  section.appendChild(grid);
+  container.appendChild(section);
+}
+
+// 🍷 Weinständer
+const wein = [
+  { title: "Herz-Weinflaschenhalter", price: "50,00 €", img: "images/wein/product1.jpg" },
+  { title: "Große Weinflasche (Dekor)", price: "120,00 €", img: "images/wein/product2.jpg" },
+  { title: "Gitarren-Weinflaschenhalter", price: "50,00 €", img: "images/wein/product3.jpg" },
+  { title: "Weinflasche Deko", price: "50,00 €", img: "images/wein/product4.jpg" },
+  { title: "Amphora Geschenkset", price: "50,00 €", img: "images/wein/product5.jpg" }
+];
+
+// 🖼️ Bilder 1–87
+const bilder = [];
+for (let i = 1; i <= 87; i++) {
+  bilder.push({
+    title: `Bild ${i}`,
+    price: "50,00 €",
+    img: `images/art/product${i}.jpg`
+  });
+}
+
+// Render
+const productsEl = document.getElementById("products");
+if (productsEl) {
+  productsEl.innerHTML = "";
+  renderSection(productsEl, "🍷 Weinflaschenhalter", wein);
+  renderSection(productsEl, "🖼️ Bilder / Wandbilder", bilder);
 }
