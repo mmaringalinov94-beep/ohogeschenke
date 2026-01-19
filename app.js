@@ -95,7 +95,7 @@ const artProducts = [
   { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
 ];
 
-// Добавяме цветове към всички ART (без да сменяме снимки)
+// Цветове към ART
 artProducts.forEach(p => {
   p.colors = ["Schwarz", "Dunkelgold"];
   p.defaultColor = "Dunkelgold";
@@ -104,18 +104,90 @@ artProducts.forEach(p => {
 const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
-// UI
+// STATE
+// =====================
+let activeCategory = "ALL"; // ALL | ART | WEIN
+let searchQuery = "";
+
+// =====================
+// UI BUILDERS
+// =====================
+function ensureControls() {
+  const container = document.getElementById("products");
+  if (!container) return;
+
+  // ако вече са добавени, излизаме
+  if (document.getElementById("shopControls")) return;
+
+  const controls = document.createElement("div");
+  controls.id = "shopControls";
+  controls.className = "shop-controls";
+
+  controls.innerHTML = `
+    <div class="filter-row">
+      <button type="button" class="filter-btn active" data-cat="ALL">All</button>
+      <button type="button" class="filter-btn" data-cat="ART">Art</button>
+      <button type="button" class="filter-btn" data-cat="WEIN">Wein</button>
+    </div>
+
+    <div class="search-row">
+      <input type="text" id="productSearch" placeholder="Suche nach Name..." autocomplete="off">
+      <span class="result-badge" id="resultBadge"></span>
+    </div>
+  `;
+
+  // Вмъкваме контролите преди grid-а с продуктите
+  container.parentNode.insertBefore(controls, container);
+
+  // Events: филтър
+  controls.querySelectorAll(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.cat;
+
+      controls.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      renderProducts(getFilteredProducts());
+    });
+  });
+
+  // Events: търсене
+  const searchInput = controls.querySelector("#productSearch");
+  searchInput.addEventListener("input", (e) => {
+    searchQuery = (e.target.value || "").trim().toLowerCase();
+    renderProducts(getFilteredProducts());
+  });
+}
+
+function getFilteredProducts() {
+  let list = [...allProducts];
+
+  if (activeCategory !== "ALL") {
+    list = list.filter(p => p.category === activeCategory);
+  }
+
+  if (searchQuery) {
+    list = list.filter(p => (p.name || "").toLowerCase().includes(searchQuery));
+  }
+
+  return list;
+}
+
+function updateResultBadge(count) {
+  const badge = document.getElementById("resultBadge");
+  if (!badge) return;
+  badge.textContent = `${count} Produkte`;
+}
+
+// =====================
+// PRODUCT CARD
 // =====================
 function createProductCard(product) {
   const card = document.createElement("div");
-
-  // за да не счупим текущи стилове, слагаме 2 класа
   card.className = "product-card product";
 
   const priceText = formatPriceEUR(product.price);
   const isArt = product.category === "ART";
-
-  // default (само ART)
   let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
 
   card.innerHTML = `
@@ -148,7 +220,6 @@ function createProductCard(product) {
 
   refreshLinks();
 
-  // само ART: избор на цвят
   if (isArt) {
     const options = card.querySelector("[data-color-options]");
     options.addEventListener("click", (e) => {
@@ -167,13 +238,19 @@ function createProductCard(product) {
   return card;
 }
 
+// =====================
+// RENDER
+// =====================
 function renderProducts(products) {
   const container = document.getElementById("products");
   if (!container) return;
 
   container.innerHTML = "";
   products.forEach(p => container.appendChild(createProductCard(p)));
+
+  updateResultBadge(products.length);
 }
 
 // START
-renderProducts(allProducts);
+ensureControls();
+renderProducts(getFilteredProducts());
