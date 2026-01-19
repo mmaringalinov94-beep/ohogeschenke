@@ -1,8 +1,8 @@
 // =====================
 // CONFIG
 // =====================
-const WHATSAPP_NUMBER = "491234567890"; // TODO: сложи твоя WhatsApp номер без +
-const EMAIL_TO = "info@ohowein.com";    // TODO: сложи твоя имейл
+const WHATSAPP_NUMBER = "4915226216596"; // TODO: сложи твоя WhatsApp номер без +
+const EMAIL_TO = "mmaringalinov94@gmail.com";    // TODO: сложи твоя имейл
 
 // =====================
 // HELPERS
@@ -177,3 +177,4 @@ function renderProducts(products) {
 
 // старт
 renderProducts(allProducts);
+
