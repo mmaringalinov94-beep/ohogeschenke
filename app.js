@@ -28,6 +28,10 @@ function buildEmailLink(product, color) {
   return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
 }
 
+function normName(s) {
+  return (s || "").toString().trim().toLowerCase();
+}
+
 // =====================
 // DATA
 // =====================
@@ -95,7 +99,6 @@ const artProducts = [
   { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
 ];
 
-// Цветове към ART
 artProducts.forEach(p => {
   p.colors = ["Schwarz", "Dunkelgold"];
   p.defaultColor = "Dunkelgold";
@@ -108,15 +111,14 @@ const allProducts = [...weinProducts, ...artProducts];
 // =====================
 let activeCategory = "ALL"; // ALL | ART | WEIN
 let searchQuery = "";
+let sortMode = "featured"; // featured | price_asc | price_desc | name_asc
 
 // =====================
-// UI BUILDERS
+// CONTROLS
 // =====================
 function ensureControls() {
   const container = document.getElementById("products");
   if (!container) return;
-
-  // ако вече са добавени, излизаме
   if (document.getElementById("shopControls")) return;
 
   const controls = document.createElement("div");
@@ -124,22 +126,37 @@ function ensureControls() {
   controls.className = "shop-controls";
 
   controls.innerHTML = `
-    <div class="filter-row">
-      <button type="button" class="filter-btn active" data-cat="ALL">All</button>
-      <button type="button" class="filter-btn" data-cat="ART">Art</button>
-      <button type="button" class="filter-btn" data-cat="WEIN">Wein</button>
+    <div class="controls-grid">
+      <div class="filter-row">
+        <button type="button" class="filter-btn active" data-cat="ALL">All</button>
+        <button type="button" class="filter-btn" data-cat="ART">Art</button>
+        <button type="button" class="filter-btn" data-cat="WEIN">Wein</button>
+      </div>
+
+      <div class="search-row">
+        <input type="text" id="productSearch" placeholder="Suche nach Name..." autocomplete="off">
+      </div>
+
+      <div class="sort-row">
+        <select id="sortSelect">
+          <option value="featured">Sortierung: Standard</option>
+          <option value="price_asc">Preis: niedrig → hoch</option>
+          <option value="price_desc">Preis: hoch → niedrig</option>
+          <option value="name_asc">Name: A → Z</option>
+        </select>
+      </div>
     </div>
 
-    <div class="search-row">
-      <input type="text" id="productSearch" placeholder="Suche nach Name..." autocomplete="off">
+    <div class="status-row">
+      <span class="status-pill" id="statusPill"></span>
       <span class="result-badge" id="resultBadge"></span>
+      <button type="button" class="clear-btn" id="clearBtn">Zurücksetzen</button>
     </div>
   `;
 
-  // Вмъкваме контролите преди grid-а с продуктите
   container.parentNode.insertBefore(controls, container);
 
-  // Events: филтър
+  // filter
   controls.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       activeCategory = btn.dataset.cat;
@@ -147,36 +164,86 @@ function ensureControls() {
       controls.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      renderProducts(getFilteredProducts());
+      applyAndRender();
     });
   });
 
-  // Events: търсене
+  // search
   const searchInput = controls.querySelector("#productSearch");
   searchInput.addEventListener("input", (e) => {
     searchQuery = (e.target.value || "").trim().toLowerCase();
-    renderProducts(getFilteredProducts());
+    applyAndRender();
+  });
+
+  // sort
+  const sortSelect = controls.querySelector("#sortSelect");
+  sortSelect.addEventListener("change", (e) => {
+    sortMode = e.target.value;
+    applyAndRender();
+  });
+
+  // reset
+  controls.querySelector("#clearBtn").addEventListener("click", () => {
+    activeCategory = "ALL";
+    searchQuery = "";
+    sortMode = "featured";
+
+    controls.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    controls.querySelector('.filter-btn[data-cat="ALL"]').classList.add("active");
+    searchInput.value = "";
+    sortSelect.value = "featured";
+
+    applyAndRender();
   });
 }
 
-function getFilteredProducts() {
+function getFilteredSortedProducts() {
   let list = [...allProducts];
 
+  // filter
   if (activeCategory !== "ALL") {
     list = list.filter(p => p.category === activeCategory);
   }
 
+  // search
   if (searchQuery) {
-    list = list.filter(p => (p.name || "").toLowerCase().includes(searchQuery));
+    list = list.filter(p => normName(p.name).includes(searchQuery));
+  }
+
+  // sort
+  if (sortMode === "price_asc") {
+    list.sort((a, b) => Number(a.price) - Number(b.price));
+  } else if (sortMode === "price_desc") {
+    list.sort((a, b) => Number(b.price) - Number(a.price));
+  } else if (sortMode === "name_asc") {
+    list.sort((a, b) => normName(a.name).localeCompare(normName(b.name)));
   }
 
   return list;
 }
 
-function updateResultBadge(count) {
+function updateStatus(count) {
   const badge = document.getElementById("resultBadge");
-  if (!badge) return;
-  badge.textContent = `${count} Produkte`;
+  const pill = document.getElementById("statusPill");
+  if (badge) badge.textContent = `${count} Produkte`;
+
+  if (!pill) return;
+
+  const catText = activeCategory === "ALL" ? "Kategorie: All" : `Kategorie: ${activeCategory}`;
+  const qText = searchQuery ? `Suche: "${searchQuery}"` : "Suche: —";
+  const sText =
+    sortMode === "featured" ? "Sort: Standard" :
+    sortMode === "price_asc" ? "Sort: Preis ↑" :
+    sortMode === "price_desc" ? "Sort: Preis ↓" :
+    "Sort: Name A–Z";
+
+  pill.textContent = `${catText} | ${qText} | ${sText}`;
+}
+
+function applyAndRender() {
+  const list = getFilteredSortedProducts();
+  renderProducts(list);
+  updateStatus(list.length);
 }
 
 // =====================
@@ -247,10 +314,8 @@ function renderProducts(products) {
 
   container.innerHTML = "";
   products.forEach(p => container.appendChild(createProductCard(p)));
-
-  updateResultBadge(products.length);
 }
 
 // START
 ensureControls();
-renderProducts(getFilteredProducts());
+applyAndRender();
