@@ -386,6 +386,73 @@ a{color:inherit; text-decoration:none}
   border-color: rgba(255,255,255,.55);
   background: rgba(255,255,255,.12);
 }
+/* =========================
+   Controls: Filter + Search
+   ========================= */
+.shop-controls{
+  max-width: 1200px;
+  margin: 0 auto 16px auto;
+  padding: 0 10px;
+}
+
+.filter-row{
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.filter-btn{
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 9px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.filter-btn.active{
+  background: rgba(255,255,255,.18);
+  border-color: rgba(255,255,255,.85);
+}
+
+.search-row{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#productSearch{
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 12px;
+  outline: none;
+}
+
+#productSearch::placeholder{
+  color: rgba(255,255,255,.6);
+}
+
+.result-badge{
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.9);
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
 
 
 
