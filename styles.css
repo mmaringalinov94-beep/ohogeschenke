@@ -278,6 +278,31 @@ a{color:inherit; text-decoration:none}
   opacity:.8;
   color: rgba(255,255,255,.85);
 }
+.actions{
+  margin-top:10px;
+  display:flex;
+  gap:10px;
+}
+
+.actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px 12px;
+  border-radius:10px;
+  text-decoration:none;
+  border:1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  font-weight:700;
+  font-size:13px;
+}
+
+.actions a:hover{
+  border-color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.12);
+}
+
 
 
 
