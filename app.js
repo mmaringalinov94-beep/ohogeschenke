@@ -1,32 +1,31 @@
 // =====================
 // CONFIG
 // =====================
-const WHATSAPP_NUMBER = "4915226216596"; // TODO: сложи твоя WhatsApp номер без +
-const EMAIL_TO = "mmaringalinov94@gmail.com";    // TODO: сложи твоя имейл
+const WHATSAPP_NUMBER = "4915226216596"; // без +
+const EMAIL_TO = "mmaringalinov94@gmail.com";
 
 // =====================
 // HELPERS
 // =====================
 function formatPriceEUR(value) {
-  // value е число (пример: 40)
   return `${Number(value).toFixed(2).replace(".", ",")} €`;
 }
 
 function buildMessage(product, color) {
   const priceText = formatPriceEUR(product.price);
-  const colorLine = color ? `\nFarbe: ${color}` : "";
+  const colorLine = product.category === "ART" ? `\nFarbe: ${color}` : "";
   return `Produkt: ${product.name}\nPreis: ${priceText}${colorLine}`;
 }
 
 function buildWhatsAppLink(product, color) {
-  const text = buildMessage(product, color);
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+  const text = encodeURIComponent(buildMessage(product, color));
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
 }
 
 function buildEmailLink(product, color) {
-  const subject = `Bestellung: ${product.name}`;
-  const body = buildMessage(product, color);
-  return `mailto:${EMAIL_TO}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const subject = encodeURIComponent(`Bestellung: ${product.name}`);
+  const body = encodeURIComponent(buildMessage(product, color));
+  return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
 }
 
 // =====================
@@ -96,60 +95,61 @@ const artProducts = [
   { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
 ];
 
-// Добавяме цветовете автоматично за всички ART
+// Добавяме цветове към всички ART (без да сменяме снимки)
 artProducts.forEach(p => {
   p.colors = ["Schwarz", "Dunkelgold"];
-  p.defaultColor = "Dunkelgold"; // снимката ти е златна, затова default е Dunkelgold
+  p.defaultColor = "Dunkelgold";
 });
 
-// Всички продукти (ако искаш да показваш и WEIN и ART заедно)
 const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
-// RENDER
+// UI
 // =====================
 function createProductCard(product) {
   const card = document.createElement("div");
-  card.className = "product";
 
-  // Избран цвят (само ART)
-  let selectedColor = product.category === "ART"
-    ? (product.defaultColor || "Dunkelgold")
-    : null;
+  // за да не счупим текущи стилове, слагаме 2 класа
+  card.className = "product-card product";
+
+  const priceText = formatPriceEUR(product.price);
+  const isArt = product.category === "ART";
+
+  // default (само ART)
+  let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
 
   card.innerHTML = `
     <img src="${product.image}" alt="${product.name}">
     <h3>${product.name}</h3>
-    <p class="price">${formatPriceEUR(product.price)}</p>
+    <p class="price">${priceText}</p>
 
-    ${product.category === "ART" ? `
+    ${isArt ? `
       <div class="color-options" data-color-options>
-        ${product.colors.map(c => `
-          <button type="button" class="color-btn ${c === selectedColor ? "active" : ""}" data-color="${c}">
-            ${c}
-          </button>
-        `).join("")}
+        <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+        <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
       </div>
       <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
     ` : ""}
 
     <div class="actions">
-      <a class="btn-wa" data-wa href="#">WhatsApp</a>
-      <a class="btn-mail" data-mail href="#">E-Mail</a>
+      <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+      <a class="action-btn btn-mail">E-Mail</a>
     </div>
   `;
 
-  const waLink = card.querySelector("[data-wa]");
-  const mailLink = card.querySelector("[data-mail]");
+  const waLink = card.querySelector(".btn-wa");
+  const mailLink = card.querySelector(".btn-mail");
 
   function refreshLinks() {
-    waLink.href = buildWhatsAppLink(product, selectedColor);
-    mailLink.href = buildEmailLink(product, selectedColor);
+    const colorToSend = isArt ? selectedColor : null;
+    waLink.href = buildWhatsAppLink(product, colorToSend);
+    mailLink.href = buildEmailLink(product, colorToSend);
   }
+
   refreshLinks();
 
-  // Само за ART: бутоните сменят избора (без смяна на снимката)
-  if (product.category === "ART") {
+  // само ART: избор на цвят
+  if (isArt) {
     const options = card.querySelector("[data-color-options]");
     options.addEventListener("click", (e) => {
       const btn = e.target.closest(".color-btn");
@@ -175,6 +175,5 @@ function renderProducts(products) {
   products.forEach(p => container.appendChild(createProductCard(p)));
 }
 
-// старт
+// START
 renderProducts(allProducts);
-
