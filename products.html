@@ -1,19 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Produkte – Ohogeschenke.de</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohogeschenke.de</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a>
+
       <nav class="nav">
         <a href="ohogeschenke_static_site_html_css_js.html">Start</a>
-        <a href="products.html" class="active">Produkte</a>
+        <a class="active" href="products.html">Produkte</a>
         <a href="about.html">Über uns</a>
         <a href="contact.html">Kontakt</a>
       </nav>
@@ -21,19 +22,21 @@
   </header>
 
   <main class="container">
-    <h1>Produkte</h1>
+    <h1 class="page-title">Produkte</h1>
 
-    <p class="muted">Примерен каталог. По-късно ще добавим снимки + цени.</p>
-
-    <!-- ПРОДУКТИТЕ СЕ ЗАРЕЖДАТ ОТ app.js -->
+    <!-- app.js добавя контролите автоматично преди този div -->
     <div class="products" id="products"></div>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> Ohogeschenke.de</small>
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> Ohogeschenke.de</p>
     </div>
   </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
   <script src="app.js"></script>
 </body>
