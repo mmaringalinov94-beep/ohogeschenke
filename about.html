@@ -1,41 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Über uns – Ohogeschenke.de</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohogeschenke.de</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a>
+
       <nav class="nav">
         <a href="ohogeschenke_static_site_html_css_js.html">Start</a>
         <a href="products.html">Produkte</a>
-        <a href="about.html" class="active">Über uns</a>
+        <a class="active" href="about.html">Über uns</a>
         <a href="contact.html">Kontakt</a>
       </nav>
     </div>
   </header>
 
   <main class="container">
-    <h1>Über uns</h1>
-    <p>Ohogeschenke.de – Ideen für Geschenke, Metallkunst und Dekoration. Wir arbeiten in Deutschland (PLZ 86983).</p>
+    <h1 class="page-title">Über Ohogeschenke.de</h1>
 
-    <div class="card">
-      <h3>Unsere Mission</h3>
-      <p>Schöne Geschenke und handgefertigte Kunst anzubieten – einfach, schnell und zuverlässig.</p>
-    </div>
+    <section class="content-block">
+      <p>
+        Willkommen bei <strong>Ohogeschenke.de</strong> – handgefertigte Kunst- und Geschenkideen
+        aus Metall, Holz und kreativen Materialien.
+      </p>
+
+      <p>
+        Unsere Produkte werden mit viel Liebe zum Detail gefertigt – ideal als Geschenk,
+        Dekoration oder persönliches Highlight für Zuhause.
+      </p>
+
+      <p>
+        Entdecke unsere Kategorien <strong>ART</strong> und <strong>WEIN</strong> und bestelle bequem
+        über WhatsApp oder E-Mail.
+      </p>
+    </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> Ohogeschenke.de</small>
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> Ohogeschenke.de</p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
 </body>
 </html>
