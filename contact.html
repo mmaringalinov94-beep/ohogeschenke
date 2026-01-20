@@ -1,42 +1,58 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kontakt – Ohogeschenke.de</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohogeschenke.de</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a>
+
       <nav class="nav">
         <a href="ohogeschenke_static_site_html_css_js.html">Start</a>
         <a href="products.html">Produkte</a>
         <a href="about.html">Über uns</a>
-        <a href="contact.html" class="active">Kontakt</a>
+        <a class="active" href="contact.html">Kontakt</a>
       </nav>
     </div>
   </header>
 
   <main class="container">
-    <h1>Kontakt</h1>
-    <p>Свържи се с нас директно / Kontaktieren Sie uns direkt:</p>
+    <h1 class="page-title">Kontakt</h1>
 
-    <div class="card">
-      <p><b>Email:</b> <a href="mailto:mmaringalinov94@gmail.com">mmaringalinov94@gmail.com</a></p>
-      <p><b>WhatsApp:</b> <a href="https://wa.me/4915226216596" target="_blank" rel="noopener">+49 1522 6216596</a></p>
-      <p><b>Region:</b> 86983, Deutschland</p>
-    </div>
+    <section class="content-block">
+      <p>Schreib uns gerne direkt:</p>
+
+      <ul class="contact-list">
+        <li>
+          <strong>WhatsApp:</strong>
+          <a href="https://wa.me/4915226216596" target="_blank" rel="noopener">+49 1522 6216596</a>
+        </li>
+        <li>
+          <strong>E-Mail:</strong>
+          <a href="mailto:mmaringalinov94@gmail.com">mmaringalinov94@gmail.com</a>
+        </li>
+      </ul>
+
+      <p>
+        Bei Bestellungen bitte: Produktname, Preis und (bei ART) gewünschte Farbe angeben.
+      </p>
+    </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> Ohogeschenke.de</small>
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> Ohogeschenke.de</p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
 </body>
 </html>
