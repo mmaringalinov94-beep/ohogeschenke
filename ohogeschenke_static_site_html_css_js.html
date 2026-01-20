@@ -1,18 +1,19 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ohogeschenke.de – Geschenkideen & Metallkunst</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ohogeschenke.de</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
+
   <header class="site-header">
     <div class="container header-inner">
       <a class="logo" href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a>
+
       <nav class="nav">
-        <a href="ohogeschenke_static_site_html_css_js.html" class="active">Start</a>
+        <a class="active" href="ohogeschenke_static_site_html_css_js.html">Start</a>
         <a href="products.html">Produkte</a>
         <a href="about.html">Über uns</a>
         <a href="contact.html">Kontakt</a>
@@ -21,43 +22,42 @@
   </header>
 
   <main class="container">
-    <section class="hero">
-      <h1>Geschenke & Metallkunst – regional, schön, schnell.</h1>
-      <p>Willkommen bei Ohogeschenke.de. Entdecke handgefertigte Metallkunst, Bilder und besondere Geschenkideen.</p>
-      <div class="hero-actions">
-        <a class="btn primary" href="products.html">Zum Katalog</a>
-        <a class="btn" href="contact.html">Kontakt</a>
+    <h1 class="page-title">Willkommen bei Ohogeschenke.de</h1>
+
+    <section class="content-block">
+      <p>
+        Entdecke handgefertigte Geschenkideen – von kreativer <strong>ART</strong> bis zu einzigartiger
+        <strong>WEIN</strong>-Dekoration.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn btn-primary" href="products.html">Produkte ansehen</a>
+        <a class="btn btn-outline" href="contact.html">Kontakt</a>
       </div>
     </section>
 
-    <section class="grid">
-      <div class="card">
-        <h3>🎁 Geschenkideen</h3>
-        <p>Perfekt für Geburtstage, Firmen & besondere Anlässe.</p>
-      </div>
-      <div class="card">
-        <h3>🖼️ Metallbilder</h3>
-        <p>Handgefertigte Kunstwerke – verschiedene Motive & Farben.</p>
-      </div>
-      <div class="card">
-        <h3>📦 Versand in DE</h3>
-        <p>Wir liefern schnell innerhalb Deutschlands.</p>
-      </div>
-    </section>
+    <section class="content-block">
+      <h2>Bestellen</h2>
+      <p>
+        Du kannst direkt über WhatsApp oder E-Mail bestellen. Bei ART-Produkten bitte die gewünschte Farbe auswählen.
+      </p>
 
-    <section class="info">
-      <h2>Neu: Online Katalog</h2>
-      <p>Unser Katalog wird laufend erweitert – bald mit mehr Infos, Größen und Verfügbarkeit.</p>
-      <a class="btn primary" href="products.html">Produkte ansehen</a>
+      <div class="cta-row">
+        <a class="btn btn-whatsapp" href="https://wa.me/4915226216596" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn btn-email" href="mailto:mmaringalinov94@gmail.com">E-Mail</a>
+      </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <small>© <span id="year"></span> Ohogeschenke.de</small>
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> Ohogeschenke.de</p>
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
 </body>
 </html>
