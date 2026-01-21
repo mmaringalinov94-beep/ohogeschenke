@@ -449,3 +449,26 @@ body.modal-open{
   from { transform: translateY(8px) scale(0.985); opacity: 0.65; }
   to { transform: translateY(0) scale(1); opacity: 1; }
 }
+/* =========================
+   Quick View Modal - FIX layout stretch
+   ========================= */
+.modal-grid{
+  align-items: start;            /* ключовото: спира stretch */
+}
+
+.modal-media,
+.modal-info{
+  align-self: start;             /* допълнително подсигуряване */
+}
+
+/* По желание: да не става снимката твърде висока */
+.modal-media img{
+  max-height: 70vh;
+  object-fit: cover;
+}
+
+/* По желание: малко по-добър spacing в инфото */
+.modal-info{
+  padding-right: 6px;
+}
+
