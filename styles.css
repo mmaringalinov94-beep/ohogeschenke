@@ -581,5 +581,73 @@ body.modal-open{
     flex: 1 1 100%;
   }
 }
+/* =========================
+   Quick View - Sticky CTA (Mobile-first)
+   ========================= */
+
+/* Ensure modal scroll container supports sticky children */
+.modal{
+  overflow: auto; /* already set, keep it */
+}
+
+/* Sticky CTA only inside modal */
+.modal .actions{
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+
+  /* Glass background so buttons remain readable over content */
+  background: rgba(11, 15, 22, 0.86);
+  backdrop-filter: blur(10px);
+
+  border-top: 1px solid rgba(255,255,255,0.10);
+  padding: 12px 0 2px;
+  margin-top: 14px;
+}
+
+/* Give a bit more spacing above last content so it doesn't hide behind sticky CTA */
+.modal .color-note,
+.modal .hint{
+  margin-bottom: 10px;
+}
+
+/* Make CTA row more touch friendly on mobile */
+@media (max-width: 799px){
+  .modal .actions{
+    padding: 12px 0 6px;
+  }
+
+  .modal .actions .action-btn{
+    flex: 1 1 calc(50% - 5px);
+    padding: 12px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  /* Add extra bottom breathing room inside modal content */
+  .modal-content{
+    padding-bottom: 14px;
+  }
+}
+
+/* Very small phones: stack CTA buttons full width */
+@media (max-width: 380px){
+  .modal .actions .action-btn{
+    flex: 1 1 100%;
+  }
+}
+
+/* Optional: Keep desktop CTA non-sticky (uncomment if you prefer) */
+/*
+@media (min-width: 800px){
+  .modal .actions{
+    position: static;
+    background: transparent;
+    border-top: 0;
+    padding: 0;
+  }
+}
+*/
+
 
 
