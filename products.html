@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ohogeschenke.de</title>
 
-  <!-- SEO / Social (basic; can be refined later in D) -->
   <meta name="description" content="Handgemachte Metall-Deko & Geschenke. Bestellen per WhatsApp oder E-Mail." />
   <meta property="og:title" content="Ohogeschenke.de" />
   <meta property="og:description" content="Handgemachte Metall-Deko & Geschenke. Bestellen per WhatsApp oder E-Mail." />
@@ -31,19 +30,13 @@
   </header>
 
   <main class="container">
-    <div class="breadcrumb">
-      <a href="products.html">← Zurück zu Produkte</a>
-    </div>
+    <section class="hero" style="padding-top:18px;">
+      <h1>Produkte</h1>
+      <p>Handgemachte Metall-Deko & Geschenke. Bestellen per WhatsApp oder E-Mail.</p>
+    </section>
 
-    <div id="productRoot"></div>
-
-    <div id="productNotFound" class="info" style="display:none;">
-      <h3>Produkt nicht gefunden</h3>
-      <p class="muted">Bitte gehe zurück zur Produktliste und wähle ein Produkt erneut.</p>
-      <div style="margin-top:12px;">
-        <a class="btn primary" href="products.html">Zur Produktliste</a>
-      </div>
-    </div>
+    <!-- JS renders controls + product cards inside this -->
+    <div id="products"></div>
   </main>
 
   <footer class="site-footer">
@@ -52,6 +45,6 @@
     </div>
   </footer>
 
-  <script src="product.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
