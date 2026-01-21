@@ -471,4 +471,115 @@ body.modal-open{
 .modal-info{
   padding-right: 6px;
 }
+/* =========================
+   Quick View Modal - Layout Fix + Mobile UX
+   ========================= */
+
+/* Fix: stop grid stretching */
+.modal-grid{
+  align-items: start;
+}
+
+.modal-media,
+.modal-info{
+  align-self: start;
+}
+
+/* Make media behave nicely */
+.modal-media img{
+  max-height: 70vh;
+  object-fit: cover;
+}
+
+/* Desktop/tablet: keep columns, but ensure top alignment */
+@media (min-width: 800px){
+  .modal-grid{
+    grid-template-columns: 1.2fr 1fr;
+    align-items: start;
+  }
+}
+
+/* =========================
+   Mobile (<= 799px): full-screen friendly modal
+   ========================= */
+@media (max-width: 799px){
+  .modal-overlay{
+    padding: 10px;
+    align-items: flex-end; /* modal sits lower like a sheet */
+  }
+
+  .modal{
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 16px;
+    padding: 14px;
+  }
+
+  .modal-content{
+    padding-top: 6px;
+  }
+
+  .modal-grid{
+    grid-template-columns: 1fr; /* stack */
+    gap: 12px;
+  }
+
+  .modal-media img{
+    width: 100%;
+    max-height: 42vh;     /* keeps info visible under the image */
+    border-radius: 14px;
+    object-fit: cover;
+  }
+
+  .modal h2{
+    font-size: 20px;
+    margin: 0 0 6px;
+  }
+
+  .modal .price{
+    font-size: 16px;
+    margin: 0 0 10px;
+  }
+
+  .modal .hint{
+    font-size: 13px;
+  }
+
+  /* Bigger tap targets */
+  .color-btn{
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .actions{
+    gap: 10px;
+  }
+
+  /* CTA buttons become full-width */
+  .actions .action-btn{
+    flex: 1 1 calc(50% - 5px);
+    justify-content: center;
+    padding: 12px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  /* Close button easier to reach */
+  .modal-close{
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    font-size: 24px;
+  }
+}
+
+/* =========================
+   Very small phones (<= 380px)
+   ========================= */
+@media (max-width: 380px){
+  .actions .action-btn{
+    flex: 1 1 100%;
+  }
+}
+
 
