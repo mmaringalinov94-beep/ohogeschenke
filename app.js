@@ -1,6 +1,7 @@
 /* =====================
-   Ohogeschenke.de - product.js
-   Single product page: product.html?id=...
+   Ohogeschenke.de - app.js
+   Products + Controls + Quick View + localStorage + Details link
+   Safe init (only runs on products page)
    ===================== */
 
 // =====================
@@ -8,6 +9,9 @@
 // =====================
 const WHATSAPP_NUMBER = "4915226216596"; // ohne +
 const EMAIL_TO = "mmaringalinov94@gmail.com";
+
+// Persist key
+const STORAGE_KEY = "ohogeschenke_shop_state_v1";
 
 // =====================
 // HELPERS
@@ -33,24 +37,51 @@ function buildEmailLink(product, color) {
   return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
 }
 
-function getParam(name) {
-  const u = new URL(window.location.href);
-  return u.searchParams.get(name);
+function normName(s) {
+  return (s || "").toString().trim().toLowerCase();
 }
 
-function setMeta(name, content) {
-  const el = document.querySelector(`meta[name="${name}"]`);
-  if (el) el.setAttribute("content", content);
-}
-
-function setOg(property, content) {
-  const el = document.querySelector(`meta[property="${property}"]`);
-  if (el) el.setAttribute("content", content);
+function safeParseJSON(raw) {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
 }
 
 // =====================
-// DATA (same as app.js)
+// PERSISTENCE
 // =====================
+function loadShopState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? safeParseJSON(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveShopState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // ignore (blocked storage)
+  }
+}
+
+function clearShopState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+// =====================
+// DATA
+// =====================
+
+// WEIN (5)
 const weinProducts = [
   { id: 1, category: "WEIN", name: "Herz-Weinflaschenhalter", price: 50, image: "images/wein/product1.jpg" },
   { id: 2, category: "WEIN", name: "Große Weinflasche (Dekor)", price: 120, image: "images/wein/product2.jpg" },
@@ -59,6 +90,7 @@ const weinProducts = [
   { id: 5, category: "WEIN", name: "Amphora Geschenkset", price: 50, image: "images/wein/product5.jpg" }
 ];
 
+// ART (50)
 const artProducts = [
   { id: 1, category: "ART", name: "Pferd", price: 40, image: "images/art/product1.jpg" },
   { id: 2, category: "ART", name: "FC Bayern München", price: 35, image: "images/art/product2.jpg" },
@@ -120,74 +152,105 @@ artProducts.forEach((p) => {
 const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
-// RENDER
+// STATE
 // =====================
-function renderProduct(product) {
-  const root = document.getElementById("productRoot");
-  const notFound = document.getElementById("productNotFound");
-  if (!root) return;
+let activeCategory = "ALL"; // ALL | ART | WEIN
+let searchQuery = "";
+let sortMode = "featured"; // featured | price_asc | price_desc | name_asc
 
-  if (!product) {
-    root.innerHTML = "";
-    if (notFound) notFound.style.display = "block";
-    return;
-  }
+function restoreStateFromStorage() {
+  const s = loadShopState();
+  if (!s) return;
 
-  if (notFound) notFound.style.display = "none";
+  const cat = (s.activeCategory || "").toString().toUpperCase();
+  const sort = (s.sortMode || "").toString();
 
-  const isArt = product.category === "ART";
-  let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
+  if (cat === "ALL" || cat === "ART" || cat === "WEIN") activeCategory = cat;
+  if (typeof s.searchQuery === "string") searchQuery = s.searchQuery.trim().toLowerCase();
+  if (sort === "featured" || sort === "price_asc" || sort === "price_desc" || sort === "name_asc") sortMode = sort;
+}
 
-  // SEO-ish: set title & meta (basic; deep OG per product is limited on static sites)
-  document.title = `${product.name} – Ohogeschenke.de`;
-  setMeta("description", `${product.name} kaufen. Bestellen per WhatsApp oder E-Mail.`);
-  setOg("og:title", `${product.name} – Ohogeschenke.de`);
-  setOg("og:description", `${product.name} kaufen. Bestellen per WhatsApp oder E-Mail.`);
-  setOg("og:image", product.image);
+function persistState() {
+  saveShopState({ activeCategory, searchQuery, sortMode });
+}
 
-  root.innerHTML = `
-    <section class="product-page">
-      <div class="product-page-grid">
-        <div class="product-page-media">
-          <img src="${product.image}" alt="${product.name}">
-        </div>
+// =====================
+// QUICK VIEW MODAL
+// =====================
+let modalOverlay = null;
+let lastFocusedEl = null;
 
-        <div class="product-page-info">
-          <h1 class="product-page-title">${product.name}</h1>
-          <div class="product-page-price">${formatPriceEUR(product.price)}</div>
+function onEscClose(e) {
+  if (e.key === "Escape") closeModal();
+}
 
-          ${
-            isArt
-              ? `
-            <div class="product-page-variants">
-              <div class="muted" style="margin-bottom:8px;">Farbe wählen</div>
-              <div class="color-options" data-color-options>
-                <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
-                <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
-              </div>
-              <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
-            </div>
-          `
-              : ""
-          }
+function ensureModal() {
+  if (modalOverlay) return;
 
-          <div class="actions product-page-actions">
-            <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
-            <a class="action-btn btn-mail">E-Mail</a>
-          </div>
+  modalOverlay = document.createElement("div");
+  modalOverlay.className = "modal-overlay";
+  modalOverlay.id = "quickViewOverlay";
 
-          <div class="info" style="margin-top:16px;">
-            <p class="muted" style="margin:0;">
-              Bestellung schnell und einfach: klicke auf WhatsApp oder E-Mail – der Text wird automatisch ausgefüllt.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
+  modalOverlay.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="quickViewTitle">
+      <button class="modal-close" type="button" aria-label="Close">×</button>
+      <div class="modal-content" id="quickViewContent"></div>
+    </div>
   `;
 
-  const waLink = root.querySelector(".btn-wa");
-  const mailLink = root.querySelector(".btn-mail");
+  document.body.appendChild(modalOverlay);
+
+  modalOverlay.querySelector(".modal-close").addEventListener("click", closeModal);
+
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  document.addEventListener("keydown", onEscClose);
+}
+
+function openModalForProduct(product, initialColor) {
+  ensureModal();
+  lastFocusedEl = document.activeElement;
+
+  const content = modalOverlay.querySelector("#quickViewContent");
+  const priceText = formatPriceEUR(product.price);
+  const isArt = product.category === "ART";
+  let selectedColor = isArt ? (initialColor || product.defaultColor || "Dunkelgold") : null;
+
+  content.innerHTML = `
+    <div class="modal-grid">
+      <div class="modal-media">
+        <img src="${product.image}" alt="${product.name}">
+      </div>
+
+      <div class="modal-info">
+        <h2 id="quickViewTitle">${product.name}</h2>
+        <p class="price">${priceText}</p>
+
+        ${
+          isArt
+            ? `
+          <div class="color-options" data-color-options>
+            <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+            <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+          </div>
+          <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+        `
+            : ""
+        }
+
+        <div class="actions">
+          <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="action-btn btn-mail">E-Mail</a>
+          <a class="action-btn btn-details" href="product.html?id=${product.id}">Details</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const waLink = content.querySelector(".btn-wa");
+  const mailLink = content.querySelector(".btn-mail");
 
   function refreshLinks() {
     const colorToSend = isArt ? selectedColor : null;
@@ -198,7 +261,224 @@ function renderProduct(product) {
   refreshLinks();
 
   if (isArt) {
-    const options = root.querySelector("[data-color-options]");
+    const options = content.querySelector("[data-color-options]");
+    options.addEventListener("click", (e) => {
+      const btn = e.target.closest(".color-btn");
+      if (!btn) return;
+
+      selectedColor = btn.dataset.color;
+
+      options.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      refreshLinks();
+    });
+  }
+
+  modalOverlay.classList.add("open");
+  document.body.classList.add("modal-open");
+
+  const closeBtn = modalOverlay.querySelector(".modal-close");
+  if (closeBtn) closeBtn.focus();
+}
+
+function closeModal() {
+  if (!modalOverlay) return;
+
+  modalOverlay.classList.remove("open");
+  document.body.classList.remove("modal-open");
+
+  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") lastFocusedEl.focus();
+  lastFocusedEl = null;
+}
+
+// =====================
+// CONTROLS
+// =====================
+function setActiveFilterButton(controlsRoot, cat) {
+  controlsRoot.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+  const activeBtn = controlsRoot.querySelector(`.filter-btn[data-cat="${cat}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
+}
+
+function ensureControls() {
+  const container = document.getElementById("products");
+  if (!container) return;
+
+  container.classList.add("products");
+
+  if (document.getElementById("shopControls")) return;
+
+  const controls = document.createElement("div");
+  controls.id = "shopControls";
+  controls.className = "shop-controls";
+
+  controls.innerHTML = `
+    <div class="controls-grid">
+      <div class="filter-row">
+        <button type="button" class="filter-btn" data-cat="ALL">All</button>
+        <button type="button" class="filter-btn" data-cat="ART">Art</button>
+        <button type="button" class="filter-btn" data-cat="WEIN">Wein</button>
+      </div>
+
+      <div class="search-row">
+        <input type="text" id="productSearch" placeholder="Suche nach Name..." autocomplete="off">
+      </div>
+
+      <div class="sort-row">
+        <select id="sortSelect">
+          <option value="featured">Sortierung: Standard</option>
+          <option value="price_asc">Preis: niedrig → hoch</option>
+          <option value="price_desc">Preis: hoch → niedrig</option>
+          <option value="name_asc">Name: A → Z</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <span class="status-pill" id="statusPill"></span>
+      <span class="result-badge" id="resultBadge"></span>
+      <button type="button" class="clear-btn" id="clearBtn">Zurücksetzen</button>
+    </div>
+  `;
+
+  container.parentNode.insertBefore(controls, container);
+
+  // init UI from state
+  setActiveFilterButton(controls, activeCategory);
+  const searchInput = controls.querySelector("#productSearch");
+  const sortSelect = controls.querySelector("#sortSelect");
+  searchInput.value = searchQuery || "";
+  sortSelect.value = sortMode || "featured";
+
+  // handlers
+  controls.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      activeCategory = btn.dataset.cat;
+      setActiveFilterButton(controls, activeCategory);
+      persistState();
+      applyAndRender();
+    });
+  });
+
+  searchInput.addEventListener("input", (e) => {
+    searchQuery = (e.target.value || "").trim().toLowerCase();
+    persistState();
+    applyAndRender();
+  });
+
+  sortSelect.addEventListener("change", (e) => {
+    sortMode = e.target.value;
+    persistState();
+    applyAndRender();
+  });
+
+  controls.querySelector("#clearBtn").addEventListener("click", () => {
+    activeCategory = "ALL";
+    searchQuery = "";
+    sortMode = "featured";
+
+    setActiveFilterButton(controls, activeCategory);
+    searchInput.value = "";
+    sortSelect.value = "featured";
+
+    clearShopState();
+    applyAndRender();
+  });
+}
+
+function getFilteredSortedProducts() {
+  let list = [...allProducts];
+
+  if (activeCategory !== "ALL") list = list.filter((p) => p.category === activeCategory);
+  if (searchQuery) list = list.filter((p) => normName(p.name).includes(searchQuery));
+
+  if (sortMode === "price_asc") list.sort((a, b) => Number(a.price) - Number(b.price));
+  else if (sortMode === "price_desc") list.sort((a, b) => Number(b.price) - Number(a.price));
+  else if (sortMode === "name_asc") list.sort((a, b) => normName(a.name).localeCompare(normName(b.name)));
+
+  return list;
+}
+
+function updateStatus(count) {
+  const badge = document.getElementById("resultBadge");
+  const pill = document.getElementById("statusPill");
+  if (badge) badge.textContent = `${count} Produkte`;
+  if (!pill) return;
+
+  const catText = activeCategory === "ALL" ? "Kategorie: All" : `Kategorie: ${activeCategory}`;
+  const qText = searchQuery ? `Suche: "${searchQuery}"` : "Suche: —";
+  const sText =
+    sortMode === "featured" ? "Sort: Standard" :
+    sortMode === "price_asc" ? "Sort: Preis ↑" :
+    sortMode === "price_desc" ? "Sort: Preis ↓" :
+    "Sort: Name A–Z";
+
+  pill.textContent = `${catText} | ${qText} | ${sText}`;
+}
+
+function applyAndRender() {
+  const list = getFilteredSortedProducts();
+  renderProducts(list);
+  updateStatus(list.length);
+}
+
+// =====================
+// PRODUCT CARD
+// =====================
+function createProductCard(product) {
+  const card = document.createElement("div");
+  card.className = "product-card product";
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", `Quick View: ${product.name}`);
+
+  const priceText = formatPriceEUR(product.price);
+  const isArt = product.category === "ART";
+  let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
+
+  card.innerHTML = `
+    <img class="product-image" src="${product.image}" alt="${product.name}">
+    <div class="product-body">
+      <h3 class="product-title">${product.name}</h3>
+      <p class="price">${priceText}</p>
+
+      <div class="product-links">
+        <a class="action-btn btn-details" href="product.html?id=${product.id}">Details</a>
+      </div>
+
+      ${
+        isArt
+          ? `
+        <div class="color-options" data-color-options>
+          <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+          <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+        </div>
+        <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+      `
+          : ""
+      }
+
+      <div class="actions">
+        <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="action-btn btn-mail">E-Mail</a>
+      </div>
+    </div>
+  `;
+
+  const waLink = card.querySelector(".btn-wa");
+  const mailLink = card.querySelector(".btn-mail");
+
+  function refreshLinks() {
+    const colorToSend = isArt ? selectedColor : null;
+    waLink.href = buildWhatsAppLink(product, colorToSend);
+    mailLink.href = buildEmailLink(product, colorToSend);
+  }
+
+  refreshLinks();
+
+  if (isArt) {
+    const options = card.querySelector("[data-color-options]");
     options.addEventListener("click", (e) => {
       const btn = e.target.closest(".color-btn");
       if (!btn) return;
@@ -210,15 +490,50 @@ function renderProduct(product) {
       refreshLinks();
     });
   }
+
+  function maybeOpenQuickView(e) {
+    if (e && e.target && e.target.closest("a, button, .color-options")) return;
+    openModalForProduct(product, selectedColor);
+  }
+
+  card.addEventListener("click", maybeOpenQuickView);
+
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      maybeOpenQuickView(e);
+    }
+  });
+
+  // stop bubbling from interactive
+  card.querySelectorAll("a, button").forEach((el) => {
+    el.addEventListener("click", (e) => e.stopPropagation());
+  });
+
+  return card;
 }
 
 // =====================
-// INIT
+// RENDER
 // =====================
-(function init() {
-  const idRaw = getParam("id");
-  const id = Number(idRaw);
+function renderProducts(products) {
+  const container = document.getElementById("products");
+  if (!container) return;
 
-  const product = allProducts.find((p) => p.id === id) || null;
-  renderProduct(product);
-})();
+  container.innerHTML = "";
+  products.forEach((p) => container.appendChild(createProductCard(p)));
+}
+
+// =====================
+// INIT (safe)
+// =====================
+document.addEventListener("DOMContentLoaded", () => {
+  // run only on products page
+  const productsContainer = document.getElementById("products");
+  if (!productsContainer) return;
+
+  restoreStateFromStorage();
+  ensureControls();
+  applyAndRender();
+  persistState();
+});
