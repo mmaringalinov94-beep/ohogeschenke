@@ -1,7 +1,12 @@
+/* =====================
+   Ohogeschenke.de - app.js
+   Products + Controls + Quick View Modal
+   ===================== */
+
 // =====================
 // CONFIG
 // =====================
-const WHATSAPP_NUMBER = "4915226216596"; // без +
+const WHATSAPP_NUMBER = "4915226216596"; // ohne +
 const EMAIL_TO = "mmaringalinov94@gmail.com";
 
 // =====================
@@ -13,7 +18,7 @@ function formatPriceEUR(value) {
 
 function buildMessage(product, color) {
   const priceText = formatPriceEUR(product.price);
-  const colorLine = product.category === "ART" ? `\nFarbe: ${color}` : "";
+  const colorLine = product.category === "ART" ? `\nFarbe: ${color || "Dunkelgold"}` : "";
   return `Produkt: ${product.name}\nPreis: ${priceText}${colorLine}`;
 }
 
@@ -68,7 +73,7 @@ const artProducts = [
   { id: 19, category: "ART", name: "Flamingo", price: 40, image: "images/art/product19.jpg" },
   { id: 20, category: "ART", name: "Alpen", price: 40, image: "images/art/product20.jpg" },
   { id: 21, category: "ART", name: "Tiger", price: 40, image: "images/art/product21.jpg" },
-  { id: 22, category: "Rose", price: 40, image: "images/art/product22.jpg", category: "ART", name: "Rose" },
+  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" }, // cleaned
   { id: 23, category: "ART", name: "VfB Stuttgart", price: 35, image: "images/art/product23.jpg" },
   { id: 24, category: "ART", name: "Wanderer", price: 40, image: "images/art/product24.jpg" },
   { id: 25, category: "ART", name: "Christus der Erlöser", price: 40, image: "images/art/product25.jpg" },
@@ -99,7 +104,7 @@ const artProducts = [
   { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
 ];
 
-artProducts.forEach(p => {
+artProducts.forEach((p) => {
   p.colors = ["Schwarz", "Dunkelgold"];
   p.defaultColor = "Dunkelgold";
 });
@@ -107,16 +112,21 @@ artProducts.forEach(p => {
 const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
-// STATE
+// STATE (Controls)
 // =====================
 let activeCategory = "ALL"; // ALL | ART | WEIN
 let searchQuery = "";
 let sortMode = "featured"; // featured | price_asc | price_desc | name_asc
 
 // =====================
-// MODAL (QUICK VIEW)
+// QUICK VIEW MODAL STATE
 // =====================
 let modalOverlay = null;
+let lastFocusedEl = null;
+
+function onEscClose(e) {
+  if (e.key === "Escape") closeModal();
+}
 
 function ensureModal() {
   if (modalOverlay) return;
@@ -134,22 +144,22 @@ function ensureModal() {
 
   document.body.appendChild(modalOverlay);
 
-  // close: X
+  // Close: X
   modalOverlay.querySelector(".modal-close").addEventListener("click", closeModal);
 
-  // close: click outside
+  // Close: click outside
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // close: ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeModal();
-  });
+  // Close: ESC (once)
+  document.addEventListener("keydown", onEscClose);
 }
 
 function openModalForProduct(product, initialColor) {
   ensureModal();
+
+  lastFocusedEl = document.activeElement;
 
   const content = modalOverlay.querySelector("#quickViewContent");
   const priceText = formatPriceEUR(product.price);
@@ -158,20 +168,25 @@ function openModalForProduct(product, initialColor) {
 
   content.innerHTML = `
     <div class="modal-grid">
-      <div>
+      <div class="modal-media">
         <img src="${product.image}" alt="${product.name}">
       </div>
-      <div>
+
+      <div class="modal-info">
         <h2 id="quickViewTitle">${product.name}</h2>
         <p class="price">${priceText}</p>
 
-        ${isArt ? `
+        ${
+          isArt
+            ? `
           <div class="color-options" data-color-options>
             <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
             <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
           </div>
           <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
-        ` : ""}
+        `
+            : ""
+        }
 
         <div class="actions">
           <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
@@ -200,7 +215,7 @@ function openModalForProduct(product, initialColor) {
 
       selectedColor = btn.dataset.color;
 
-      options.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+      options.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
       refreshLinks();
@@ -208,13 +223,23 @@ function openModalForProduct(product, initialColor) {
   }
 
   modalOverlay.classList.add("open");
-  document.body.style.overflow = "hidden";
+  document.body.classList.add("modal-open");
+
+  // focus close button
+  const closeBtn = modalOverlay.querySelector(".modal-close");
+  if (closeBtn) closeBtn.focus();
 }
 
 function closeModal() {
   if (!modalOverlay) return;
+
   modalOverlay.classList.remove("open");
-  document.body.style.overflow = "";
+  document.body.classList.remove("modal-open");
+
+  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+    lastFocusedEl.focus();
+  }
+  lastFocusedEl = null;
 }
 
 // =====================
@@ -223,6 +248,10 @@ function closeModal() {
 function ensureControls() {
   const container = document.getElementById("products");
   if (!container) return;
+
+  // ensure grid styling on container
+  container.classList.add("products");
+
   if (document.getElementById("shopControls")) return;
 
   const controls = document.createElement("div");
@@ -261,11 +290,11 @@ function ensureControls() {
   container.parentNode.insertBefore(controls, container);
 
   // filter
-  controls.querySelectorAll(".filter-btn").forEach(btn => {
+  controls.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeCategory = btn.dataset.cat;
 
-      controls.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      controls.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
       applyAndRender();
@@ -292,7 +321,7 @@ function ensureControls() {
     searchQuery = "";
     sortMode = "featured";
 
-    controls.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    controls.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
     controls.querySelector('.filter-btn[data-cat="ALL"]').classList.add("active");
     searchInput.value = "";
     sortSelect.value = "featured";
@@ -304,17 +333,14 @@ function ensureControls() {
 function getFilteredSortedProducts() {
   let list = [...allProducts];
 
-  // filter
   if (activeCategory !== "ALL") {
-    list = list.filter(p => p.category === activeCategory);
+    list = list.filter((p) => p.category === activeCategory);
   }
 
-  // search
   if (searchQuery) {
-    list = list.filter(p => normName(p.name).includes(searchQuery));
+    list = list.filter((p) => normName(p.name).includes(searchQuery));
   }
 
-  // sort
   if (sortMode === "price_asc") {
     list.sort((a, b) => Number(a.price) - Number(b.price));
   } else if (sortMode === "price_desc") {
@@ -329,17 +355,20 @@ function getFilteredSortedProducts() {
 function updateStatus(count) {
   const badge = document.getElementById("resultBadge");
   const pill = document.getElementById("statusPill");
-  if (badge) badge.textContent = `${count} Produkte`;
 
+  if (badge) badge.textContent = `${count} Produkte`;
   if (!pill) return;
 
   const catText = activeCategory === "ALL" ? "Kategorie: All" : `Kategorie: ${activeCategory}`;
   const qText = searchQuery ? `Suche: "${searchQuery}"` : "Suche: —";
   const sText =
-    sortMode === "featured" ? "Sort: Standard" :
-    sortMode === "price_asc" ? "Sort: Preis ↑" :
-    sortMode === "price_desc" ? "Sort: Preis ↓" :
-    "Sort: Name A–Z";
+    sortMode === "featured"
+      ? "Sort: Standard"
+      : sortMode === "price_asc"
+      ? "Sort: Preis ↑"
+      : sortMode === "price_desc"
+      ? "Sort: Preis ↓"
+      : "Sort: Name A–Z";
 
   pill.textContent = `${catText} | ${qText} | ${sText}`;
 }
@@ -356,27 +385,36 @@ function applyAndRender() {
 function createProductCard(product) {
   const card = document.createElement("div");
   card.className = "product-card product";
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("role", "button");
+  card.setAttribute("aria-label", `Quick View: ${product.name}`);
 
   const priceText = formatPriceEUR(product.price);
   const isArt = product.category === "ART";
   let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
 
   card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}">
-    <h3>${product.name}</h3>
-    <p class="price">${priceText}</p>
+    <img class="product-image" src="${product.image}" alt="${product.name}">
+    <div class="product-body">
+      <h3 class="product-title">${product.name}</h3>
+      <p class="price">${priceText}</p>
 
-    ${isArt ? `
-      <div class="color-options" data-color-options>
-        <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
-        <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+      ${
+        isArt
+          ? `
+        <div class="color-options" data-color-options>
+          <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+          <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+        </div>
+        <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+      `
+          : ""
+      }
+
+      <div class="actions">
+        <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="action-btn btn-mail">E-Mail</a>
       </div>
-      <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
-    ` : ""}
-
-    <div class="actions">
-      <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
-      <a class="action-btn btn-mail">E-Mail</a>
     </div>
   `;
 
@@ -399,25 +437,36 @@ function createProductCard(product) {
 
       selectedColor = btn.dataset.color;
 
-      options.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+      options.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
       refreshLinks();
     });
   }
 
-  // Quick view: click card (but not buttons/controls)
-  card.addEventListener("click", (e) => {
-    if (e.target.closest("a, button, .color-options")) return;
+  function maybeOpenQuickView(e) {
+    // don't open if clicking on interactive elements
+    if (e && e.target && e.target.closest("a, button, .color-options")) return;
     openModalForProduct(product, selectedColor);
+  }
+
+  // Click to open (excluding actions/colors)
+  card.addEventListener("click", maybeOpenQuickView);
+
+  // Keyboard open (Enter/Space)
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      maybeOpenQuickView(e);
+    }
   });
 
-  // Prevent clicks on actions from opening modal
-  card.querySelectorAll(".actions a").forEach(a => {
+  // Prevent action clicks from bubbling to card
+  card.querySelectorAll(".actions a").forEach((a) => {
     a.addEventListener("click", (e) => e.stopPropagation());
   });
   if (isArt) {
-    card.querySelectorAll(".color-options button").forEach(b => {
+    card.querySelectorAll(".color-options button").forEach((b) => {
       b.addEventListener("click", (e) => e.stopPropagation());
     });
   }
@@ -433,9 +482,11 @@ function renderProducts(products) {
   if (!container) return;
 
   container.innerHTML = "";
-  products.forEach(p => container.appendChild(createProductCard(p)));
+  products.forEach((p) => container.appendChild(createProductCard(p)));
 }
 
+// =====================
 // START
+// =====================
 ensureControls();
 applyAndRender();
