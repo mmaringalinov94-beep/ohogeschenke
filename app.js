@@ -467,6 +467,10 @@ function createProductCard(product) {
   let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
 
   card.innerHTML = `
+  <div class="product-links">
+  <a class="action-btn btn-details" href="product.html?id=${product.id}">Details</a>
+</div>
+
     <img class="product-image" src="${product.image}" alt="${product.name}">
     <div class="product-body">
       <h3 class="product-title">${product.name}</h3>
@@ -563,3 +567,4 @@ applyAndRender();
 
 // Persist initial restored state (optional, keeps normalized values)
 persistCurrentState();
+
