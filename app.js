@@ -1,7 +1,6 @@
 /* =====================
-   Ohogeschenke.de - app.js
-   Products + Controls + Quick View + localStorage + Details link
-   Safe init (only runs on products page)
+   Ohogeschenke.de - app.js (FINAL)
+   Products + Controls + Quick View + localStorage + Product page links
    ===================== */
 
 // =====================
@@ -49,6 +48,11 @@ function safeParseJSON(raw) {
   }
 }
 
+function productDetailsHref(product) {
+  // IMPORTANT: avoid id collision by using category + id
+  return `product.html?cat=${encodeURIComponent(product.category)}&id=${encodeURIComponent(product.id)}`;
+}
+
 // =====================
 // PERSISTENCE
 // =====================
@@ -65,7 +69,7 @@ function saveShopState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    // ignore (blocked storage)
+    // ignore
   }
 }
 
@@ -180,10 +184,6 @@ function persistState() {
 let modalOverlay = null;
 let lastFocusedEl = null;
 
-function onEscClose(e) {
-  if (e.key === "Escape") closeModal();
-}
-
 function ensureModal() {
   if (modalOverlay) return;
 
@@ -206,7 +206,9 @@ function ensureModal() {
     if (e.target === modalOverlay) closeModal();
   });
 
-  document.addEventListener("keydown", onEscClose);
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
 }
 
 function openModalForProduct(product, initialColor) {
@@ -243,7 +245,7 @@ function openModalForProduct(product, initialColor) {
         <div class="actions">
           <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
           <a class="action-btn btn-mail">E-Mail</a>
-          <a class="action-btn btn-details" href="product.html?id=${product.id}">Details</a>
+          <a class="action-btn btn-details" href="${productDetailsHref(product)}">Details</a>
         </div>
       </div>
     </div>
@@ -288,7 +290,9 @@ function closeModal() {
   modalOverlay.classList.remove("open");
   document.body.classList.remove("modal-open");
 
-  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") lastFocusedEl.focus();
+  if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
+    lastFocusedEl.focus();
+  }
   lastFocusedEl = null;
 }
 
@@ -306,7 +310,6 @@ function ensureControls() {
   if (!container) return;
 
   container.classList.add("products");
-
   if (document.getElementById("shopControls")) return;
 
   const controls = document.createElement("div");
@@ -344,14 +347,14 @@ function ensureControls() {
 
   container.parentNode.insertBefore(controls, container);
 
-  // init UI from state
+  // init UI
   setActiveFilterButton(controls, activeCategory);
   const searchInput = controls.querySelector("#productSearch");
   const sortSelect = controls.querySelector("#sortSelect");
   searchInput.value = searchQuery || "";
   sortSelect.value = sortMode || "featured";
 
-  // handlers
+  // filter
   controls.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeCategory = btn.dataset.cat;
@@ -361,18 +364,21 @@ function ensureControls() {
     });
   });
 
+  // search
   searchInput.addEventListener("input", (e) => {
     searchQuery = (e.target.value || "").trim().toLowerCase();
     persistState();
     applyAndRender();
   });
 
+  // sort
   sortSelect.addEventListener("change", (e) => {
     sortMode = e.target.value;
     persistState();
     applyAndRender();
   });
 
+  // reset
   controls.querySelector("#clearBtn").addEventListener("click", () => {
     activeCategory = "ALL";
     searchQuery = "";
@@ -403,6 +409,7 @@ function getFilteredSortedProducts() {
 function updateStatus(count) {
   const badge = document.getElementById("resultBadge");
   const pill = document.getElementById("statusPill");
+
   if (badge) badge.textContent = `${count} Produkte`;
   if (!pill) return;
 
@@ -444,7 +451,7 @@ function createProductCard(product) {
       <p class="price">${priceText}</p>
 
       <div class="product-links">
-        <a class="action-btn btn-details" href="product.html?id=${product.id}">Details</a>
+        <a class="action-btn btn-details" href="${productDetailsHref(product)}">Details</a>
       </div>
 
       ${
@@ -484,6 +491,7 @@ function createProductCard(product) {
       if (!btn) return;
 
       selectedColor = btn.dataset.color;
+
       options.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
@@ -505,7 +513,7 @@ function createProductCard(product) {
     }
   });
 
-  // stop bubbling from interactive
+  // stop bubbling from interactive elements
   card.querySelectorAll("a, button").forEach((el) => {
     el.addEventListener("click", (e) => e.stopPropagation());
   });
@@ -528,7 +536,7 @@ function renderProducts(products) {
 // INIT (safe)
 // =====================
 document.addEventListener("DOMContentLoaded", () => {
-  // run only on products page
+  // only run on products page
   const productsContainer = document.getElementById("products");
   if (!productsContainer) return;
 
