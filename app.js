@@ -1,6 +1,6 @@
 /* =====================
    Ohogeschenke.de - app.js
-   Products + Controls + Quick View Modal
+   Products + Controls + Quick View + localStorage state (B)
    ===================== */
 
 // =====================
@@ -8,6 +8,9 @@
 // =====================
 const WHATSAPP_NUMBER = "4915226216596"; // ohne +
 const EMAIL_TO = "mmaringalinov94@gmail.com";
+
+// localStorage key
+const STORAGE_KEY = "ohogeschenke_shop_state_v1";
 
 // =====================
 // HELPERS
@@ -35,6 +38,51 @@ function buildEmailLink(product, color) {
 
 function normName(s) {
   return (s || "").toString().trim().toLowerCase();
+}
+
+function safeJSONParse(s) {
+  try {
+    return JSON.parse(s);
+  } catch {
+    return null;
+  }
+}
+
+// =====================
+// PERSISTENCE
+// =====================
+function loadShopState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return safeJSONParse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveShopState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // ignore (private mode / blocked storage)
+  }
+}
+
+function clearShopState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+function persistCurrentState() {
+  saveShopState({
+    activeCategory,
+    searchQuery,
+    sortMode
+  });
 }
 
 // =====================
@@ -73,7 +121,7 @@ const artProducts = [
   { id: 19, category: "ART", name: "Flamingo", price: 40, image: "images/art/product19.jpg" },
   { id: 20, category: "ART", name: "Alpen", price: 40, image: "images/art/product20.jpg" },
   { id: 21, category: "ART", name: "Tiger", price: 40, image: "images/art/product21.jpg" },
-  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" }, // cleaned
+  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" },
   { id: 23, category: "ART", name: "VfB Stuttgart", price: 35, image: "images/art/product23.jpg" },
   { id: 24, category: "ART", name: "Wanderer", price: 40, image: "images/art/product24.jpg" },
   { id: 25, category: "ART", name: "Christus der Erlöser", price: 40, image: "images/art/product25.jpg" },
@@ -112,14 +160,27 @@ artProducts.forEach((p) => {
 const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
-// STATE (Controls)
+// STATE
 // =====================
 let activeCategory = "ALL"; // ALL | ART | WEIN
 let searchQuery = "";
 let sortMode = "featured"; // featured | price_asc | price_desc | name_asc
 
+// Restore state early
+(function restoreStateFromStorage() {
+  const s = loadShopState();
+  if (!s) return;
+
+  const cat = (s.activeCategory || "").toString().toUpperCase();
+  const sort = (s.sortMode || "").toString();
+
+  if (cat === "ALL" || cat === "ART" || cat === "WEIN") activeCategory = cat;
+  if (typeof s.searchQuery === "string") searchQuery = s.searchQuery.trim().toLowerCase();
+  if (sort === "featured" || sort === "price_asc" || sort === "price_desc" || sort === "name_asc") sortMode = sort;
+})();
+
 // =====================
-// QUICK VIEW MODAL STATE
+// MODAL (QUICK VIEW)
 // =====================
 let modalOverlay = null;
 let lastFocusedEl = null;
@@ -144,15 +205,12 @@ function ensureModal() {
 
   document.body.appendChild(modalOverlay);
 
-  // Close: X
   modalOverlay.querySelector(".modal-close").addEventListener("click", closeModal);
 
-  // Close: click outside
   modalOverlay.addEventListener("click", (e) => {
     if (e.target === modalOverlay) closeModal();
   });
 
-  // Close: ESC (once)
   document.addEventListener("keydown", onEscClose);
 }
 
@@ -225,7 +283,6 @@ function openModalForProduct(product, initialColor) {
   modalOverlay.classList.add("open");
   document.body.classList.add("modal-open");
 
-  // focus close button
   const closeBtn = modalOverlay.querySelector(".modal-close");
   if (closeBtn) closeBtn.focus();
 }
@@ -249,7 +306,6 @@ function ensureControls() {
   const container = document.getElementById("products");
   if (!container) return;
 
-  // ensure grid styling on container
   container.classList.add("products");
 
   if (document.getElementById("shopControls")) return;
@@ -261,7 +317,7 @@ function ensureControls() {
   controls.innerHTML = `
     <div class="controls-grid">
       <div class="filter-row">
-        <button type="button" class="filter-btn active" data-cat="ALL">All</button>
+        <button type="button" class="filter-btn" data-cat="ALL">All</button>
         <button type="button" class="filter-btn" data-cat="ART">Art</button>
         <button type="button" class="filter-btn" data-cat="WEIN">Wein</button>
       </div>
@@ -289,29 +345,40 @@ function ensureControls() {
 
   container.parentNode.insertBefore(controls, container);
 
-  // filter
+  // Init UI from restored state
+  setActiveFilterButton(controls, activeCategory);
+
+  const searchInput = controls.querySelector("#productSearch");
+  searchInput.value = searchQuery || "";
+
+  const sortSelect = controls.querySelector("#sortSelect");
+  sortSelect.value = sortMode || "featured";
+
+  // filter handlers
   controls.querySelectorAll(".filter-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       activeCategory = btn.dataset.cat;
 
-      controls.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
+      setActiveFilterButton(controls, activeCategory);
 
+      persistCurrentState();
       applyAndRender();
     });
   });
 
-  // search
-  const searchInput = controls.querySelector("#productSearch");
+  // search handler
   searchInput.addEventListener("input", (e) => {
     searchQuery = (e.target.value || "").trim().toLowerCase();
+
+    persistCurrentState();
     applyAndRender();
   });
 
-  // sort
-  const sortSelect = controls.querySelector("#sortSelect");
+  // sort handler
   sortSelect.addEventListener("change", (e) => {
     sortMode = e.target.value;
+
+    persistCurrentState();
     applyAndRender();
   });
 
@@ -321,13 +388,19 @@ function ensureControls() {
     searchQuery = "";
     sortMode = "featured";
 
-    controls.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
-    controls.querySelector('.filter-btn[data-cat="ALL"]').classList.add("active");
+    setActiveFilterButton(controls, activeCategory);
     searchInput.value = "";
     sortSelect.value = "featured";
 
+    clearShopState();
     applyAndRender();
   });
+}
+
+function setActiveFilterButton(controlsRoot, cat) {
+  controlsRoot.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active"));
+  const activeBtn = controlsRoot.querySelector(`.filter-btn[data-cat="${cat}"]`);
+  if (activeBtn) activeBtn.classList.add("active");
 }
 
 function getFilteredSortedProducts() {
@@ -445,15 +518,12 @@ function createProductCard(product) {
   }
 
   function maybeOpenQuickView(e) {
-    // don't open if clicking on interactive elements
     if (e && e.target && e.target.closest("a, button, .color-options")) return;
     openModalForProduct(product, selectedColor);
   }
 
-  // Click to open (excluding actions/colors)
   card.addEventListener("click", maybeOpenQuickView);
 
-  // Keyboard open (Enter/Space)
   card.addEventListener("keydown", (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
@@ -461,10 +531,10 @@ function createProductCard(product) {
     }
   });
 
-  // Prevent action clicks from bubbling to card
   card.querySelectorAll(".actions a").forEach((a) => {
     a.addEventListener("click", (e) => e.stopPropagation());
   });
+
   if (isArt) {
     card.querySelectorAll(".color-options button").forEach((b) => {
       b.addEventListener("click", (e) => e.stopPropagation());
@@ -490,3 +560,6 @@ function renderProducts(products) {
 // =====================
 ensureControls();
 applyAndRender();
+
+// Persist initial restored state (optional, keeps normalized values)
+persistCurrentState();
