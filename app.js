@@ -68,7 +68,7 @@ const artProducts = [
   { id: 19, category: "ART", name: "Flamingo", price: 40, image: "images/art/product19.jpg" },
   { id: 20, category: "ART", name: "Alpen", price: 40, image: "images/art/product20.jpg" },
   { id: 21, category: "ART", name: "Tiger", price: 40, image: "images/art/product21.jpg" },
-  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" },
+  { id: 22, category: "Rose", price: 40, image: "images/art/product22.jpg", category: "ART", name: "Rose" },
   { id: 23, category: "ART", name: "VfB Stuttgart", price: 35, image: "images/art/product23.jpg" },
   { id: 24, category: "ART", name: "Wanderer", price: 40, image: "images/art/product24.jpg" },
   { id: 25, category: "ART", name: "Christus der Erlöser", price: 40, image: "images/art/product25.jpg" },
@@ -112,6 +112,110 @@ const allProducts = [...weinProducts, ...artProducts];
 let activeCategory = "ALL"; // ALL | ART | WEIN
 let searchQuery = "";
 let sortMode = "featured"; // featured | price_asc | price_desc | name_asc
+
+// =====================
+// MODAL (QUICK VIEW)
+// =====================
+let modalOverlay = null;
+
+function ensureModal() {
+  if (modalOverlay) return;
+
+  modalOverlay = document.createElement("div");
+  modalOverlay.className = "modal-overlay";
+  modalOverlay.id = "quickViewOverlay";
+
+  modalOverlay.innerHTML = `
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="quickViewTitle">
+      <button class="modal-close" type="button" aria-label="Close">×</button>
+      <div class="modal-content" id="quickViewContent"></div>
+    </div>
+  `;
+
+  document.body.appendChild(modalOverlay);
+
+  // close: X
+  modalOverlay.querySelector(".modal-close").addEventListener("click", closeModal);
+
+  // close: click outside
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target === modalOverlay) closeModal();
+  });
+
+  // close: ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeModal();
+  });
+}
+
+function openModalForProduct(product, initialColor) {
+  ensureModal();
+
+  const content = modalOverlay.querySelector("#quickViewContent");
+  const priceText = formatPriceEUR(product.price);
+  const isArt = product.category === "ART";
+  let selectedColor = isArt ? (initialColor || product.defaultColor || "Dunkelgold") : null;
+
+  content.innerHTML = `
+    <div class="modal-grid">
+      <div>
+        <img src="${product.image}" alt="${product.name}">
+      </div>
+      <div>
+        <h2 id="quickViewTitle">${product.name}</h2>
+        <p class="price">${priceText}</p>
+
+        ${isArt ? `
+          <div class="color-options" data-color-options>
+            <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+            <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+          </div>
+          <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+        ` : ""}
+
+        <div class="actions">
+          <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="action-btn btn-mail">E-Mail</a>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const waLink = content.querySelector(".btn-wa");
+  const mailLink = content.querySelector(".btn-mail");
+
+  function refreshLinks() {
+    const colorToSend = isArt ? selectedColor : null;
+    waLink.href = buildWhatsAppLink(product, colorToSend);
+    mailLink.href = buildEmailLink(product, colorToSend);
+  }
+
+  refreshLinks();
+
+  if (isArt) {
+    const options = content.querySelector("[data-color-options]");
+    options.addEventListener("click", (e) => {
+      const btn = e.target.closest(".color-btn");
+      if (!btn) return;
+
+      selectedColor = btn.dataset.color;
+
+      options.querySelectorAll(".color-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      refreshLinks();
+    });
+  }
+
+  modalOverlay.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  if (!modalOverlay) return;
+  modalOverlay.classList.remove("open");
+  document.body.style.overflow = "";
+}
 
 // =====================
 // CONTROLS
@@ -299,6 +403,22 @@ function createProductCard(product) {
       btn.classList.add("active");
 
       refreshLinks();
+    });
+  }
+
+  // Quick view: click card (but not buttons/controls)
+  card.addEventListener("click", (e) => {
+    if (e.target.closest("a, button, .color-options")) return;
+    openModalForProduct(product, selectedColor);
+  });
+
+  // Prevent clicks on actions from opening modal
+  card.querySelectorAll(".actions a").forEach(a => {
+    a.addEventListener("click", (e) => e.stopPropagation());
+  });
+  if (isArt) {
+    card.querySelectorAll(".color-options button").forEach(b => {
+      b.addEventListener("click", (e) => e.stopPropagation());
     });
   }
 
