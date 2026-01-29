@@ -1,41 +1,23 @@
+import {
+  STORAGE_KEY,
+  allProducts,
+  ART_COLOR_NOTE,
+  ART_DEFAULT_COLOR,
+  buildWhatsAppLink,
+  buildEmailLink,
+  productDetailsHref,
+  formatPriceEUR,
+} from "./data.js";
+
 /* =====================
    Ohogeschenke.de - app.js (FINAL)
    Products + Controls + Quick View + localStorage + Product page links
+   Using data.js as single source of truth
    ===================== */
 
 // =====================
-// CONFIG
+// HELPERS (local only)
 // =====================
-const WHATSAPP_NUMBER = "4915226216596"; // ohne +
-const EMAIL_TO = "mmaringalinov94@gmail.com";
-
-// Persist key
-const STORAGE_KEY = "ohogeschenke_shop_state_v1";
-
-// =====================
-// HELPERS
-// =====================
-function formatPriceEUR(value) {
-  return `${Number(value).toFixed(2).replace(".", ",")} €`;
-}
-
-function buildMessage(product, color) {
-  const priceText = formatPriceEUR(product.price);
-  const colorLine = product.category === "ART" ? `\nFarbe: ${color || "Dunkelgold"}` : "";
-  return `Produkt: ${product.name}\nPreis: ${priceText}${colorLine}`;
-}
-
-function buildWhatsAppLink(product, color) {
-  const text = encodeURIComponent(buildMessage(product, color));
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
-}
-
-function buildEmailLink(product, color) {
-  const subject = encodeURIComponent(`Bestellung: ${product.name}`);
-  const body = encodeURIComponent(buildMessage(product, color));
-  return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
-}
-
 function normName(s) {
   return (s || "").toString().trim().toLowerCase();
 }
@@ -46,11 +28,6 @@ function safeParseJSON(raw) {
   } catch {
     return null;
   }
-}
-
-function productDetailsHref(product) {
-  // IMPORTANT: avoid id collision by using category + id
-  return `product.html?cat=${encodeURIComponent(product.category)}&id=${encodeURIComponent(product.id)}`;
 }
 
 // =====================
@@ -82,80 +59,6 @@ function clearShopState() {
 }
 
 // =====================
-// DATA
-// =====================
-
-// WEIN (5)
-const weinProducts = [
-  { id: 1, category: "WEIN", name: "Herz-Weinflaschenhalter", price: 50, image: "images/wein/product1.jpg" },
-  { id: 2, category: "WEIN", name: "Große Weinflasche (Dekor)", price: 120, image: "images/wein/product2.jpg" },
-  { id: 3, category: "WEIN", name: "Gitarren-Weinflaschenhalter", price: 50, image: "images/wein/product3.jpg" },
-  { id: 4, category: "WEIN", name: "Weinflasche Deko", price: 50, image: "images/wein/product4.jpg" },
-  { id: 5, category: "WEIN", name: "Amphora Geschenkset", price: 50, image: "images/wein/product5.jpg" }
-];
-
-// ART (50)
-const artProducts = [
-  { id: 1, category: "ART", name: "Pferd", price: 40, image: "images/art/product1.jpg" },
-  { id: 2, category: "ART", name: "FC Bayern München", price: 35, image: "images/art/product2.jpg" },
-  { id: 3, category: "ART", name: "BJK 1903", price: 35, image: "images/art/product3.jpg" },
-  { id: 4, category: "ART", name: "Bayern Leverkusen", price: 35, image: "images/art/product4.jpg" },
-  { id: 5, category: "ART", name: "Huhn mit Brille", price: 40, image: "images/art/product5.jpg" },
-  { id: 6, category: "ART", name: "Fenerbahce", price: 35, image: "images/art/product6.jpg" },
-  { id: 7, category: "ART", name: "Hirsch mit Geweih", price: 40, image: "images/art/product7.jpg" },
-  { id: 8, category: "ART", name: "Chaplin", price: 40, image: "images/art/product8.jpg" },
-  { id: 9, category: "ART", name: "Piratenschiff", price: 40, image: "images/art/product9.jpg" },
-  { id: 10, category: "ART", name: "Mutter mit Kind", price: 40, image: "images/art/product10.jpg" },
-  { id: 11, category: "ART", name: "Flugzeug", price: 40, image: "images/art/product11.jpg" },
-  { id: 12, category: "ART", name: "Juventus", price: 35, image: "images/art/product12.jpg" },
-  { id: 13, category: "ART", name: "Hirsch im Wald", price: 40, image: "images/art/product13.jpg" },
-  { id: 14, category: "ART", name: "Stier", price: 40, image: "images/art/product14.jpg" },
-  { id: 15, category: "ART", name: "Herz", price: 40, image: "images/art/product15.jpg" },
-  { id: 16, category: "ART", name: "Blume", price: 40, image: "images/art/product16.jpg" },
-  { id: 17, category: "ART", name: "Arsenal", price: 35, image: "images/art/product17.jpg" },
-  { id: 18, category: "ART", name: "Pferd Masiv", price: 45, image: "images/art/product18.jpg" },
-  { id: 19, category: "ART", name: "Flamingo", price: 40, image: "images/art/product19.jpg" },
-  { id: 20, category: "ART", name: "Alpen", price: 40, image: "images/art/product20.jpg" },
-  { id: 21, category: "ART", name: "Tiger", price: 40, image: "images/art/product21.jpg" },
-  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" },
-  { id: 23, category: "ART", name: "VfB Stuttgart", price: 35, image: "images/art/product23.jpg" },
-  { id: 24, category: "ART", name: "Wanderer", price: 40, image: "images/art/product24.jpg" },
-  { id: 25, category: "ART", name: "Christus der Erlöser", price: 40, image: "images/art/product25.jpg" },
-  { id: 26, category: "ART", name: "Kosmonaut", price: 40, image: "images/art/product26.jpg" },
-  { id: 27, category: "ART", name: "Fußballer", price: 40, image: "images/art/product27.jpg" },
-  { id: 28, category: "ART", name: "Tulpen", price: 40, image: "images/art/product28.jpg" },
-  { id: 29, category: "ART", name: "Bambi", price: 40, image: "images/art/product29.jpg" },
-  { id: 30, category: "ART", name: "Samurai", price: 40, image: "images/art/product30.jpg" },
-  { id: 31, category: "ART", name: "Mutter mit Baby", price: 40, image: "images/art/product31.jpg" },
-  { id: 32, category: "ART", name: "Galatasaray S.K", price: 35, image: "images/art/product32.jpg" },
-  { id: 33, category: "ART", name: "Frau mit Reh", price: 40, image: "images/art/product33.jpg" },
-  { id: 34, category: "ART", name: "Schweißer", price: 40, image: "images/art/product34.jpg" },
-  { id: 35, category: "ART", name: "Eiffelturm", price: 40, image: "images/art/product35.jpg" },
-  { id: 36, category: "ART", name: "Landschaft", price: 40, image: "images/art/product36.jpg" },
-  { id: 37, category: "ART", name: "Real Madrid CF", price: 35, image: "images/art/product37.jpg" },
-  { id: 38, category: "ART", name: "Fischen", price: 40, image: "images/art/product38.jpg" },
-  { id: 39, category: "ART", name: "Frau mit einem Tropfen", price: 40, image: "images/art/product39.jpg" },
-  { id: 40, category: "ART", name: "Frau auf einer Schaukel", price: 40, image: "images/art/product40.jpg" },
-  { id: 41, category: "ART", name: "Das Kamel", price: 40, image: "images/art/product41.jpg" },
-  { id: 42, category: "ART", name: "Der springende Fisch", price: 40, image: "images/art/product42.jpg" },
-  { id: 43, category: "ART", name: "Bear", price: 40, image: "images/art/product43.jpg" },
-  { id: 44, category: "ART", name: "Manchester United", price: 35, image: "images/art/product44.jpg" },
-  { id: 45, category: "ART", name: "Borusia Dortmund", price: 35, image: "images/art/product45.jpg" },
-  { id: 46, category: "ART", name: "Barselona", price: 35, image: "images/art/product46.jpg" },
-  { id: 47, category: "ART", name: "Das Schloss", price: 40, image: "images/art/product47.jpg" },
-  { id: 48, category: "ART", name: "Liverpool", price: 35, image: "images/art/product48.jpg" },
-  { id: 49, category: "ART", name: "Baum des Lebens", price: 45, image: "images/art/product49.jpg" },
-  { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
-];
-
-artProducts.forEach((p) => {
-  p.colors = ["Schwarz", "Dunkelgold"];
-  p.defaultColor = "Dunkelgold";
-});
-
-const allProducts = [...weinProducts, ...artProducts];
-
-// =====================
 // STATE
 // =====================
 let activeCategory = "ALL"; // ALL | ART | WEIN
@@ -177,6 +80,66 @@ function restoreStateFromStorage() {
 function persistState() {
   saveShopState({ activeCategory, searchQuery, sortMode });
 }
+
+// =====================
+// QUICK VIEW STICKY CTA (mobile only, shows only when modal is open)
+// =====================
+const QV_STICKY_BREAKPOINT = 768;
+
+function isMobileViewport() {
+  return window.innerWidth <= QV_STICKY_BREAKPOINT;
+}
+
+function qvStickyEls() {
+  return {
+    root: document.getElementById("qvStickyCta"),
+    wa: document.getElementById("qvStickyWhatsApp"),
+    mail: document.getElementById("qvStickyEmail"),
+  };
+}
+
+function showQvSticky() {
+  const { root } = qvStickyEls();
+  if (!root) return;
+
+  if (!isMobileViewport()) {
+    hideQvSticky();
+    return;
+  }
+
+  root.classList.remove("is-hidden");
+  root.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-sticky-cta");
+}
+
+function hideQvSticky() {
+  const { root } = qvStickyEls();
+  if (!root) return;
+
+  root.classList.add("is-hidden");
+  root.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-sticky-cta");
+}
+
+function updateQvSticky(product, selectedColor) {
+  const { wa, mail, root } = qvStickyEls();
+  if (!wa || !mail || !root || !product) return;
+
+  const colorToSend =
+    product.category === "ART" ? (selectedColor || ART_DEFAULT_COLOR) : null;
+
+  wa.href = buildWhatsAppLink(product, colorToSend);
+  mail.href = buildEmailLink(product, colorToSend);
+}
+
+// keep sticky in sync on resize while modal open
+window.addEventListener("resize", () => {
+  const modalOpen = document.body.classList.contains("modal-open");
+  if (!modalOpen) return;
+
+  if (isMobileViewport()) showQvSticky();
+  else hideQvSticky();
+});
 
 // =====================
 // QUICK VIEW MODAL
@@ -218,7 +181,7 @@ function openModalForProduct(product, initialColor) {
   const content = modalOverlay.querySelector("#quickViewContent");
   const priceText = formatPriceEUR(product.price);
   const isArt = product.category === "ART";
-  let selectedColor = isArt ? (initialColor || product.defaultColor || "Dunkelgold") : null;
+  let selectedColor = isArt ? (initialColor || product.defaultColor || ART_DEFAULT_COLOR) : null;
 
   content.innerHTML = `
     <div class="modal-grid">
@@ -237,7 +200,7 @@ function openModalForProduct(product, initialColor) {
             <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
             <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
           </div>
-          <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+          <div class="color-note hint">${ART_COLOR_NOTE}</div>
         `
             : ""
         }
@@ -262,6 +225,10 @@ function openModalForProduct(product, initialColor) {
 
   refreshLinks();
 
+  // sync sticky CTA with current product + color
+  updateQvSticky(product, selectedColor);
+  showQvSticky();
+
   if (isArt) {
     const options = content.querySelector("[data-color-options]");
     options.addEventListener("click", (e) => {
@@ -274,6 +241,7 @@ function openModalForProduct(product, initialColor) {
       btn.classList.add("active");
 
       refreshLinks();
+      updateQvSticky(product, selectedColor);
     });
   }
 
@@ -289,6 +257,8 @@ function closeModal() {
 
   modalOverlay.classList.remove("open");
   document.body.classList.remove("modal-open");
+
+  hideQvSticky();
 
   if (lastFocusedEl && typeof lastFocusedEl.focus === "function") {
     lastFocusedEl.focus();
@@ -442,7 +412,7 @@ function createProductCard(product) {
 
   const priceText = formatPriceEUR(product.price);
   const isArt = product.category === "ART";
-  let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
+  let selectedColor = isArt ? (product.defaultColor || ART_DEFAULT_COLOR) : null;
 
   card.innerHTML = `
     <img class="product-image" src="${product.image}" alt="${product.name}">
@@ -461,7 +431,7 @@ function createProductCard(product) {
           <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
           <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
         </div>
-        <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+        <div class="color-note">${ART_COLOR_NOTE}</div>
       `
           : ""
       }
@@ -539,121 +509,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // only run on products page
   const productsContainer = document.getElementById("products");
   if (!productsContainer) return;
-// ===== Quick View Sticky CTA (mobile only) =====
-const QV_STICKY_BREAKPOINT = 768;
-
-function isMobileViewport() {
-  return window.innerWidth <= QV_STICKY_BREAKPOINT;
-}
-
-function buildInquiryText(product, selectedColor) {
-  const lines = [
-    `Produkt: ${product.name}`,
-    `Preis: ${product.price}`,
-  ];
-
-  if (product.category === "ART") {
-    lines.push(`Farbe: ${selectedColor || "Dunkelgold"}`);
-  }
-
-  return lines.join("\n");
-}
-
-function buildWhatsAppHref(text) {
-  const phone = "4915226216596";
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-}
-
-function buildEmailHref(text) {
-  const to = "mmaringalinov94@gmail.com";
-  const subject = "Anfrage Ohogeschenke";
-  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
-}
-
-function qvStickyEls() {
-  return {
-    root: document.getElementById("qvStickyCta"),
-    wa: document.getElementById("qvStickyWhatsApp"),
-    mail: document.getElementById("qvStickyEmail"),
-  };
-}
-
-function showQvSticky() {
-  const { root } = qvStickyEls();
-  if (!root) return;
-
-  // show only on mobile
-  if (!isMobileViewport()) {
-    hideQvSticky();
-    return;
-  }
-
-  root.classList.remove("is-hidden");
-  root.setAttribute("aria-hidden", "false");
-  document.body.classList.add("has-sticky-cta");
-}
-
-function hideQvSticky() {
-  const { root } = qvStickyEls();
-  if (!root) return;
-
-  root.classList.add("is-hidden");
-  root.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("has-sticky-cta");
-}
-
-function updateQvSticky(product, selectedColor) {
-  const { wa, mail, root } = qvStickyEls();
-  if (!wa || !mail || !root) return;
-
-  const text = buildInquiryText(product, selectedColor);
-  wa.href = buildWhatsAppHref(text);
-  mail.href = buildEmailHref(text);
-}
-let qvCurrentProduct = null;
-let qvSelectedColor = "Dunkelgold"; // default for ART
-
-function openQuickView(product) {
-  qvCurrentProduct = product;
-  qvSelectedColor = (product.category === "ART") ? "Dunkelgold" : null;
-
-  // ... твоя existing modal render/open код ...
-  // renderQuickViewModal(product)
-
-  updateQvSticky(qvCurrentProduct, qvSelectedColor);
-  showQvSticky();
-
-  // Ако имаш в модала dropdown/radio за цветове:
-  const colorInput = document.querySelector("#quickViewModal [name='artColor']");
-  if (colorInput) {
-    colorInput.addEventListener("change", (e) => {
-      qvSelectedColor = e.target.value || "Dunkelgold";
-      updateQvSticky(qvCurrentProduct, qvSelectedColor);
-    });
-  }
-}
-
-function closeQuickView() {
-  // ... твоя existing close код ...
-  // closeModal()
-
-  qvCurrentProduct = null;
-  qvSelectedColor = "Dunkelgold";
-  hideQvSticky();
-}
 
   restoreStateFromStorage();
   ensureControls();
   applyAndRender();
   persistState();
 });
-window.addEventListener("resize", () => {
-  // ако модалът е отворен, пре-прецени mobile/desktop
-  const modalOpen = document.body.classList.contains("modal-open"); // или твоя флаг
-  if (!modalOpen) return;
-
-  if (isMobileViewport()) showQvSticky();
-  else hideQvSticky();
-});
-
-
