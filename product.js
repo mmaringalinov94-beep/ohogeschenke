@@ -222,10 +222,11 @@ function renderProduct(product) {
               : ""
           }
 
-          <div class="actions product-page-actions">
-            <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
-            <a class="action-btn btn-mail">E-Mail</a>
-          </div>
+         <div class="actions product-page-actions">
+  <a ...>WhatsApp</a>
+  <a ...>E-Mail</a>
+</div>
+
 
           <div class="info" style="margin-top:16px;">
             <p class="muted" style="margin:0;">
