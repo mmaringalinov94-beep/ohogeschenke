@@ -647,4 +647,13 @@ function closeQuickView() {
   applyAndRender();
   persistState();
 });
+window.addEventListener("resize", () => {
+  // ако модалът е отворен, пре-прецени mobile/desktop
+  const modalOpen = document.body.classList.contains("modal-open"); // или твоя флаг
+  if (!modalOpen) return;
+
+  if (isMobileViewport()) showQvSticky();
+  else hideQvSticky();
+});
+
 
