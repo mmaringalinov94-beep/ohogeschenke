@@ -3,26 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
   <title>Ohogeschenke.de</title>
 
+  <!-- SEO -->
   <meta name="description" content="Handgemachte Metall-Deko & Geschenke. Bestellen per WhatsApp oder E-Mail." />
+
+  <!-- Open Graph -->
   <meta property="og:title" content="Ohogeschenke.de" />
   <meta property="og:description" content="Handgemachte Metall-Deko & Geschenke. Bestellen per WhatsApp oder E-Mail." />
   <meta property="og:image" content="images/og.jpg" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="" />
+
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
 
+  <!-- Assets -->
   <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
 
   <header class="site-header">
     <div class="container header-inner">
-      <div class="logo"><a href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a></div>
+      <div class="logo">
+        <a href="ohogeschenke_static_site_html_css_js.html">Ohogeschenke.de</a>
+      </div>
+
       <nav class="nav">
         <a href="ohogeschenke_static_site_html_css_js.html">Start</a>
-        <a class="active" href="products.html">Produkte</a>
+        <a href="products.html">Produkte</a>
         <a href="about.html">Über uns</a>
         <a href="contact.html">Kontakt</a>
       </nav>
@@ -30,6 +42,7 @@
   </header>
 
   <main class="container">
+
     <div class="breadcrumb">
       <a href="products.html">← Zurück zu Produkte</a>
     </div>
@@ -39,10 +52,12 @@
     <div id="productNotFound" class="info" style="display:none;">
       <h3>Produkt nicht gefunden</h3>
       <p class="muted">Bitte gehe zurück zur Produktliste und wähle ein Produkt erneut.</p>
+
       <div style="margin-top:12px;">
         <a class="btn primary" href="products.html">Zur Produktliste</a>
       </div>
     </div>
+
   </main>
 
   <footer class="site-footer">
@@ -50,6 +65,9 @@
       <p class="muted">© Ohogeschenke.de</p>
     </div>
   </footer>
-<script type="module" src="product.js"></script>
+
+  <!-- App -->
+  <script type="module" src="product.js"></script>
+
 </body>
 </html>
