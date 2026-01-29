@@ -724,6 +724,91 @@ body.modal-open{
     font-size: 16px;
   }
 }
+/* =========================
+   Sticky CTA (mobile) - product page
+   ========================= */
+.sticky-cta{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10050;
+  display: none; /* shown on mobile via media query */
+  background: rgba(11,11,15,0.82);
+  border-top: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sticky-cta .sticky-cta-inner{
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 10px 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sticky-cta .sticky-cta-meta{
+  min-width: 0;
+  flex: 1;
+}
+
+.sticky-cta .sticky-cta-title{
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sticky-cta .sticky-cta-sub{
+  margin: 2px 0 0;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.sticky-cta .sticky-cta-actions{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.sticky-cta .sticky-cta-actions a{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  font-weight: 900;
+  font-size: 13px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.sticky-cta .sticky-cta-actions a:hover{
+  border-color: rgba(255,255,255,.55);
+  background: rgba(255,255,255,.12);
+}
+
+.sticky-cta .sticky-cta-actions a.cta-wa{
+  border-color: rgba(37, 211, 102, 0.45);
+}
+
+/* Mobile only */
+@media (max-width: 900px){
+  body.has-sticky-cta{ padding-bottom: 74px; } /* room for bar */
+  .sticky-cta{ display: block; }
+}
+
+/* When modal open, avoid double overlays (optional safety) */
+body.modal-open .sticky-cta{ display: none !important; }
+
 
 
 
