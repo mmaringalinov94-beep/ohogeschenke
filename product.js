@@ -1,6 +1,7 @@
 /* =====================
-   Ohogeschenke.de - product.js
-   product.html?cat=ART&id=22  OR  product.html?cat=WEIN&id=1
+   Ohogeschenke.de - product.js (FINAL)
+   Single product page with mobile Sticky CTA + Smart show/hide
+   URL: product.html?cat=ART&id=22  OR  product.html?cat=WEIN&id=1
    ===================== */
 
 // =====================
@@ -10,52 +11,7 @@ const WHATSAPP_NUMBER = "4915226216596"; // ohne +
 const EMAIL_TO = "mmaringalinov94@gmail.com";
 
 // =====================
-// HELPERS// =====================
-// STICKY CTA (mobile)
-// =====================
-let stickyEl = null;
-
-function ensureStickyCTA() {
-  if (stickyEl) return stickyEl;
-
-  stickyEl = document.createElement("div");
-  stickyEl.className = "sticky-cta";
-  stickyEl.id = "stickyCta";
-
-  stickyEl.innerHTML = `
-    <div class="sticky-cta-inner">
-      <div class="sticky-cta-meta">
-        <p class="sticky-cta-title" id="stickyCtaTitle"></p>
-        <p class="sticky-cta-sub muted" id="stickyCtaSub"></p>
-      </div>
-      <div class="sticky-cta-actions">
-        <a class="cta-wa" id="stickyCtaWA" target="_blank" rel="noopener">WhatsApp</a>
-        <a id="stickyCtaMail">E-Mail</a>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(stickyEl);
-  document.body.classList.add("has-sticky-cta");
-  return stickyEl;
-}
-
-function updateStickyCTA(product, color) {
-  const el = ensureStickyCTA();
-
-  const title = el.querySelector("#stickyCtaTitle");
-  const sub = el.querySelector("#stickyCtaSub");
-  const wa = el.querySelector("#stickyCtaWA");
-  const mail = el.querySelector("#stickyCtaMail");
-
-  const priceText = formatPriceEUR(product.price);
-  title.textContent = product.name;
-  sub.textContent = `${priceText}${product.category === "ART" ? ` • Farbe: ${color || "Dunkelgold"}` : ""}`;
-
-  wa.href = buildWhatsAppLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
-  mail.href = buildEmailLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
-}
-
+// HELPERS
 // =====================
 function formatPriceEUR(value) {
   return `${Number(value).toFixed(2).replace(".", ",")} €`;
@@ -78,26 +34,28 @@ function buildEmailLink(product, color) {
   return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
 }
 
-function getParam(name) {
-  const u = new URL(window.location.href);
-  return u.searchParams.get(name);
+function getQueryParam(name) {
+  const url = new URL(window.location.href);
+  return url.searchParams.get(name);
 }
 
-function setMeta(name, content) {
-  const el = document.querySelector(`meta[name="${name}"]`);
-  if (el) el.setAttribute("content", content);
-}
+function setOgMeta(product) {
+  // Optional: updates title/meta for nicer share/SEO; safe if tags don't exist
+  document.title = `Ohogeschenke.de — ${product.name}`;
 
-function setOg(property, content) {
-  const el = document.querySelector(`meta[property="${property}"]`);
-  if (el) el.setAttribute("content", content);
+  const set = (selector, value, attr = "content") => {
+    const el = document.querySelector(selector);
+    if (el) el.setAttribute(attr, value);
+  };
+
+  set('meta[property="og:title"]', `Ohogeschenke.de — ${product.name}`);
+  set('meta[property="og:description"]', `Preis: ${formatPriceEUR(product.price)}`);
+  // OG image left as site default; could be per-product later
 }
 
 // =====================
-// DATA
+// DATA (same as app.js)
 // =====================
-
-// WEIN (5)
 const weinProducts = [
   { id: 1, category: "WEIN", name: "Herz-Weinflaschenhalter", price: 50, image: "images/wein/product1.jpg" },
   { id: 2, category: "WEIN", name: "Große Weinflasche (Dekor)", price: 120, image: "images/wein/product2.jpg" },
@@ -106,7 +64,6 @@ const weinProducts = [
   { id: 5, category: "WEIN", name: "Amphora Geschenkset", price: 50, image: "images/wein/product5.jpg" }
 ];
 
-// ART (50)
 const artProducts = [
   { id: 1, category: "ART", name: "Pferd", price: 40, image: "images/art/product1.jpg" },
   { id: 2, category: "ART", name: "FC Bayern München", price: 35, image: "images/art/product2.jpg" },
@@ -165,70 +122,123 @@ artProducts.forEach((p) => {
   p.defaultColor = "Dunkelgold";
 });
 
+const allProducts = [...weinProducts, ...artProducts];
+
 // =====================
-// LOGIC
+// STICKY CTA (mobile)
 // =====================
-function findProduct(cat, id) {
-  if (cat === "WEIN") return weinProducts.find((p) => p.id === id) || null;
-  if (cat === "ART") return artProducts.find((p) => p.id === id) || null;
-  return null;
+let stickyEl = null;
+
+function ensureStickyCTA() {
+  if (stickyEl) return stickyEl;
+
+  stickyEl = document.createElement("div");
+  stickyEl.className = "sticky-cta";
+  stickyEl.id = "stickyCta";
+
+  stickyEl.innerHTML = `
+    <div class="sticky-cta-inner">
+      <div class="sticky-cta-meta">
+        <p class="sticky-cta-title" id="stickyCtaTitle"></p>
+        <p class="sticky-cta-sub muted" id="stickyCtaSub"></p>
+      </div>
+      <div class="sticky-cta-actions">
+        <a class="cta-wa" id="stickyCtaWA" target="_blank" rel="noopener">WhatsApp</a>
+        <a id="stickyCtaMail">E-Mail</a>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(stickyEl);
+  document.body.classList.add("has-sticky-cta");
+  return stickyEl;
+}
+
+function updateStickyCTA(product, color) {
+  const el = ensureStickyCTA();
+
+  const title = el.querySelector("#stickyCtaTitle");
+  const sub = el.querySelector("#stickyCtaSub");
+  const wa = el.querySelector("#stickyCtaWA");
+  const mail = el.querySelector("#stickyCtaMail");
+
+  const priceText = formatPriceEUR(product.price);
+  title.textContent = product.name;
+  sub.textContent = `${priceText}${product.category === "ART" ? ` • Farbe: ${color || "Dunkelgold"}` : ""}`;
+
+  wa.href = buildWhatsAppLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
+  mail.href = buildEmailLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
+}
+
+function enableSmartSticky() {
+  const sticky = document.getElementById("stickyCta");
+  const mainActions = document.querySelector(".product-page-actions");
+  if (!sticky || !mainActions) return;
+  if (!("IntersectionObserver" in window)) return;
+
+  // hide at top (CTA visible), show when CTA scrolls away
+  sticky.classList.add("is-hidden");
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      const visible = entries[0].isIntersecting;
+      sticky.classList.toggle("is-hidden", visible);
+    },
+    { threshold: 0.15 }
+  );
+
+  io.observe(mainActions);
+}
+
+// =====================
+// RENDER
+// =====================
+function showNotFound() {
+  const root = document.getElementById("productRoot");
+  const nf = document.getElementById("productNotFound");
+  if (root) root.innerHTML = "";
+  if (nf) nf.style.display = "block";
 }
 
 function renderProduct(product) {
   const root = document.getElementById("productRoot");
-  const notFound = document.getElementById("productNotFound");
+  const nf = document.getElementById("productNotFound");
   if (!root) return;
-
-  if (!product) {
-    root.innerHTML = "";
-    if (notFound) notFound.style.display = "block";
-    return;
-  }
-  if (notFound) notFound.style.display = "none";
+  if (nf) nf.style.display = "none";
 
   const isArt = product.category === "ART";
   let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
 
-  // Basic meta updates (static sites can't fully do per-product OG for bots, but good for UX)
-  document.title = `${product.name} – Ohogeschenke.de`;
-  setMeta("description", `${product.name} kaufen. Bestellen per WhatsApp oder E-Mail.`);
-  setOg("og:title", `${product.name} – Ohogeschenke.de`);
-  setOg("og:description", `${product.name} kaufen. Bestellen per WhatsApp oder E-Mail.`);
-  setOg("og:image", product.image);
+  const priceText = formatPriceEUR(product.price);
 
   root.innerHTML = `
     <section class="product-page">
-      <div class="product-page-grid">
-        <div class="product-page-media">
-          <img src="${product.image}" alt="${product.name}">
-        </div>
+      <div class="card product-page-card">
+        <img src="${product.image}" alt="${product.name}" style="width:100%;border-radius:18px;border:1px solid rgba(255,255,255,0.10);display:block;object-fit:cover;" />
 
-        <div class="product-page-info">
-          <h1 class="product-page-title">${product.name}</h1>
-          <div class="product-page-price">${formatPriceEUR(product.price)}</div>
+        <div style="padding:14px 6px 6px;">
+          <h1 style="margin:10px 0 6px;font-size:28px;line-height:1.15;">${product.name}</h1>
+          <div style="font-size:20px;font-weight:900;margin-bottom:8px;">${priceText}</div>
 
           ${
             isArt
               ? `
-            <div class="product-page-variants">
-              <div class="muted" style="margin-bottom:8px;">Farbe wählen</div>
-              <div class="color-options" data-color-options>
-                <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
-                <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
-              </div>
-              <div class="color-note hint">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+            <div class="color-options" data-color-options>
+              <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
+              <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
             </div>
+            <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
           `
               : ""
           }
 
-         <div class="actions product-page-actions">
-  <a ...>WhatsApp</a>
-  <a ...>E-Mail</a>
-</div>
+          <!-- IMPORTANT: this class is what Smart Sticky observes -->
+          <div class="actions product-page-actions">
+            <a class="action-btn btn-wa" target="_blank" rel="noopener">WhatsApp</a>
+            <a class="action-btn btn-mail">E-Mail</a>
+          </div>
 
-
-          <div class="info" style="margin-top:16px;">
+          <div class="info" style="margin-top:12px;">
             <p class="muted" style="margin:0;">
               Bestellung schnell und einfach: klicke auf WhatsApp oder E-Mail – der Text wird automatisch ausgefüllt.
             </p>
@@ -249,6 +259,10 @@ function renderProduct(product) {
 
   refreshLinks();
 
+  // Sticky CTA init + sync
+  updateStickyCTA(product, isArt ? selectedColor : null);
+  enableSmartSticky();
+
   if (isArt) {
     const options = root.querySelector("[data-color-options]");
     options.addEventListener("click", (e) => {
@@ -256,39 +270,36 @@ function renderProduct(product) {
       if (!btn) return;
 
       selectedColor = btn.dataset.color;
+
       options.querySelectorAll(".color-btn").forEach((b) => b.classList.remove("active"));
       btn.classList.add("active");
 
       refreshLinks();
-    });updateStickyCTA(product, selectedColor);
-
+      updateStickyCTA(product, selectedColor); // keep sticky CTA in sync
+    });
   }
+
+  setOgMeta(product);
 }
 
+// =====================
+// INIT
+// =====================
 document.addEventListener("DOMContentLoaded", () => {
-  const catRaw = (getParam("cat") || "").toUpperCase();
-  const idRaw = getParam("id");
-  const id = Number(idRaw);
+  const cat = (getQueryParam("cat") || "").toUpperCase();
+  const idRaw = getQueryParam("id");
 
-  const cat = catRaw === "ART" || catRaw === "WEIN" ? catRaw : null;
-  const product = cat && Number.isFinite(id) ? findProduct(cat, id) : null;
+  const id = Number(idRaw);
+  if (!cat || !id || Number.isNaN(id)) {
+    showNotFound();
+    return;
+  }
+
+  const product = allProducts.find((p) => p.category === cat && Number(p.id) === id);
+  if (!product) {
+    showNotFound();
+    return;
+  }
 
   renderProduct(product);
-});// Smart show/hide Sticky CTA (only when main CTA is not visible)
-const sticky = document.getElementById("stickyCta");
-const mainActions = document.querySelector(".product-page-actions");
-
-if (sticky && mainActions && "IntersectionObserver" in window) {
-  const io = new IntersectionObserver(
-    (entries) => {
-      const isVisible = entries[0].isIntersecting;
-      // If main CTA is visible -> hide sticky, else show sticky
-      sticky.style.display = isVisible ? "none" : "";
-    },
-    { threshold: 0.15 }
-  );
-  io.observe(mainActions);
-}
-
-// Sticky CTA (mobile)
-updateStickyCTA(product, isArt ? selectedColor : null);
+});
