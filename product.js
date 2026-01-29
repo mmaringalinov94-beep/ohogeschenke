@@ -10,7 +10,52 @@ const WHATSAPP_NUMBER = "4915226216596"; // ohne +
 const EMAIL_TO = "mmaringalinov94@gmail.com";
 
 // =====================
-// HELPERS
+// HELPERS// =====================
+// STICKY CTA (mobile)
+// =====================
+let stickyEl = null;
+
+function ensureStickyCTA() {
+  if (stickyEl) return stickyEl;
+
+  stickyEl = document.createElement("div");
+  stickyEl.className = "sticky-cta";
+  stickyEl.id = "stickyCta";
+
+  stickyEl.innerHTML = `
+    <div class="sticky-cta-inner">
+      <div class="sticky-cta-meta">
+        <p class="sticky-cta-title" id="stickyCtaTitle"></p>
+        <p class="sticky-cta-sub muted" id="stickyCtaSub"></p>
+      </div>
+      <div class="sticky-cta-actions">
+        <a class="cta-wa" id="stickyCtaWA" target="_blank" rel="noopener">WhatsApp</a>
+        <a id="stickyCtaMail">E-Mail</a>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(stickyEl);
+  document.body.classList.add("has-sticky-cta");
+  return stickyEl;
+}
+
+function updateStickyCTA(product, color) {
+  const el = ensureStickyCTA();
+
+  const title = el.querySelector("#stickyCtaTitle");
+  const sub = el.querySelector("#stickyCtaSub");
+  const wa = el.querySelector("#stickyCtaWA");
+  const mail = el.querySelector("#stickyCtaMail");
+
+  const priceText = formatPriceEUR(product.price);
+  title.textContent = product.name;
+  sub.textContent = `${priceText}${product.category === "ART" ? ` • Farbe: ${color || "Dunkelgold"}` : ""}`;
+
+  wa.href = buildWhatsAppLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
+  mail.href = buildEmailLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
+}
+
 // =====================
 function formatPriceEUR(value) {
   return `${Number(value).toFixed(2).replace(".", ",")} €`;
