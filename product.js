@@ -259,7 +259,8 @@ function renderProduct(product) {
       btn.classList.add("active");
 
       refreshLinks();
-    });
+    });updateStickyCTA(product, selectedColor);
+
   }
 }
 
@@ -273,3 +274,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderProduct(product);
 });
+// Sticky CTA (mobile)
+updateStickyCTA(product, isArt ? selectedColor : null);
