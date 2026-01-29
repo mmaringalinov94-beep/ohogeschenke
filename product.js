@@ -21,9 +21,12 @@ function getQueryParam(name) {
   const url = new URL(window.location.href);
   return url.searchParams.get(name);
 }
-
 function setOgMeta(product) {
-  // Optional: updates title/meta for nicer share/SEO; safe if tags don't exist
+  const productUrl =
+    `${location.origin}${location.pathname}` +
+    `?cat=${encodeURIComponent(product.category)}` +
+    `&id=${encodeURIComponent(product.id)}`;
+
   document.title = `Ohogeschenke.de — ${product.name}`;
 
   const set = (selector, value, attr = "content") => {
@@ -33,38 +36,42 @@ function setOgMeta(product) {
 
   set('meta[property="og:title"]', `Ohogeschenke.de — ${product.name}`);
   set('meta[property="og:description"]', `Preis: ${formatPriceEUR(product.price)}`);
-  // OG image left as site default; could be per-product later
+  set('meta[property="og:url"]', productUrl);
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = productUrl;
+
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": [`${location.origin}/${product.image}`],
+    "offers": {
+      "@type": "Offer",
+      "priceCurrency": "EUR",
+      "price": Number(product.price).toFixed(2),
+      "availability": "https://schema.org/InStock",
+      "url": productUrl
+    },
+    "brand": { "@type": "Brand", "name": "Ohogeschenke.de" }
+  };
+
+  let ldEl = document.getElementById("productJsonLd");
+  if (!ldEl) {
+    ldEl = document.createElement("script");
+    ldEl.type = "application/ld+json";
+    ldEl.id = "productJsonLd";
+    document.head.appendChild(ldEl);
+  }
+  ldEl.textContent = JSON.stringify(ld);
 }
 
-// =====================
-// STICKY CTA (mobile)
-// =====================
-let stickyEl = null;
 
-function ensureStickyCTA() {
-  if (stickyEl) return stickyEl;
-
-  stickyEl = document.createElement("div");
-  stickyEl.className = "sticky-cta";
-  stickyEl.id = "stickyCta";
-
-  stickyEl.innerHTML = `
-    <div class="sticky-cta-inner">
-      <div class="sticky-cta-meta">
-        <p class="sticky-cta-title" id="stickyCtaTitle"></p>
-        <p class="sticky-cta-sub muted" id="stickyCtaSub"></p>
-      </div>
-      <div class="sticky-cta-actions">
-        <a class="cta-wa" id="stickyCtaWA" target="_blank" rel="noopener">WhatsApp</a>
-        <a id="stickyCtaMail">E-Mail</a>
-      </div>
-    </div>
-  `;
-
-  document.body.appendChild(stickyEl);
-  document.body.classList.add("has-sticky-cta");
-  return stickyEl;
-}
 
 function updateStickyCTA(product, color) {
   const el = ensureStickyCTA();
