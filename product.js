@@ -1,39 +1,22 @@
+import {
+  getProduct,
+  ART_COLOR_NOTE,
+  ART_DEFAULT_COLOR,
+  buildWhatsAppLink,
+  buildEmailLink,
+  formatPriceEUR,
+} from "./data.js";
+
 /* =====================
    Ohogeschenke.de - product.js (FINAL)
    Single product page with mobile Sticky CTA + Smart show/hide
    URL: product.html?cat=ART&id=22  OR  product.html?cat=WEIN&id=1
+   Using data.js as single source of truth
    ===================== */
 
 // =====================
-// CONFIG
+// HELPERS (local only)
 // =====================
-const WHATSAPP_NUMBER = "4915226216596"; // ohne +
-const EMAIL_TO = "mmaringalinov94@gmail.com";
-
-// =====================
-// HELPERS
-// =====================
-function formatPriceEUR(value) {
-  return `${Number(value).toFixed(2).replace(".", ",")} €`;
-}
-
-function buildMessage(product, color) {
-  const priceText = formatPriceEUR(product.price);
-  const colorLine = product.category === "ART" ? `\nFarbe: ${color || "Dunkelgold"}` : "";
-  return `Produkt: ${product.name}\nPreis: ${priceText}${colorLine}`;
-}
-
-function buildWhatsAppLink(product, color) {
-  const text = encodeURIComponent(buildMessage(product, color));
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
-}
-
-function buildEmailLink(product, color) {
-  const subject = encodeURIComponent(`Bestellung: ${product.name}`);
-  const body = encodeURIComponent(buildMessage(product, color));
-  return `mailto:${EMAIL_TO}?subject=${subject}&body=${body}`;
-}
-
 function getQueryParam(name) {
   const url = new URL(window.location.href);
   return url.searchParams.get(name);
@@ -52,77 +35,6 @@ function setOgMeta(product) {
   set('meta[property="og:description"]', `Preis: ${formatPriceEUR(product.price)}`);
   // OG image left as site default; could be per-product later
 }
-
-// =====================
-// DATA (same as app.js)
-// =====================
-const weinProducts = [
-  { id: 1, category: "WEIN", name: "Herz-Weinflaschenhalter", price: 50, image: "images/wein/product1.jpg" },
-  { id: 2, category: "WEIN", name: "Große Weinflasche (Dekor)", price: 120, image: "images/wein/product2.jpg" },
-  { id: 3, category: "WEIN", name: "Gitarren-Weinflaschenhalter", price: 50, image: "images/wein/product3.jpg" },
-  { id: 4, category: "WEIN", name: "Weinflasche Deko", price: 50, image: "images/wein/product4.jpg" },
-  { id: 5, category: "WEIN", name: "Amphora Geschenkset", price: 50, image: "images/wein/product5.jpg" }
-];
-
-const artProducts = [
-  { id: 1, category: "ART", name: "Pferd", price: 40, image: "images/art/product1.jpg" },
-  { id: 2, category: "ART", name: "FC Bayern München", price: 35, image: "images/art/product2.jpg" },
-  { id: 3, category: "ART", name: "BJK 1903", price: 35, image: "images/art/product3.jpg" },
-  { id: 4, category: "ART", name: "Bayern Leverkusen", price: 35, image: "images/art/product4.jpg" },
-  { id: 5, category: "ART", name: "Huhn mit Brille", price: 40, image: "images/art/product5.jpg" },
-  { id: 6, category: "ART", name: "Fenerbahce", price: 35, image: "images/art/product6.jpg" },
-  { id: 7, category: "ART", name: "Hirsch mit Geweih", price: 40, image: "images/art/product7.jpg" },
-  { id: 8, category: "ART", name: "Chaplin", price: 40, image: "images/art/product8.jpg" },
-  { id: 9, category: "ART", name: "Piratenschiff", price: 40, image: "images/art/product9.jpg" },
-  { id: 10, category: "ART", name: "Mutter mit Kind", price: 40, image: "images/art/product10.jpg" },
-  { id: 11, category: "ART", name: "Flugzeug", price: 40, image: "images/art/product11.jpg" },
-  { id: 12, category: "ART", name: "Juventus", price: 35, image: "images/art/product12.jpg" },
-  { id: 13, category: "ART", name: "Hirsch im Wald", price: 40, image: "images/art/product13.jpg" },
-  { id: 14, category: "ART", name: "Stier", price: 40, image: "images/art/product14.jpg" },
-  { id: 15, category: "ART", name: "Herz", price: 40, image: "images/art/product15.jpg" },
-  { id: 16, category: "ART", name: "Blume", price: 40, image: "images/art/product16.jpg" },
-  { id: 17, category: "ART", name: "Arsenal", price: 35, image: "images/art/product17.jpg" },
-  { id: 18, category: "ART", name: "Pferd Masiv", price: 45, image: "images/art/product18.jpg" },
-  { id: 19, category: "ART", name: "Flamingo", price: 40, image: "images/art/product19.jpg" },
-  { id: 20, category: "ART", name: "Alpen", price: 40, image: "images/art/product20.jpg" },
-  { id: 21, category: "ART", name: "Tiger", price: 40, image: "images/art/product21.jpg" },
-  { id: 22, category: "ART", name: "Rose", price: 40, image: "images/art/product22.jpg" },
-  { id: 23, category: "ART", name: "VfB Stuttgart", price: 35, image: "images/art/product23.jpg" },
-  { id: 24, category: "ART", name: "Wanderer", price: 40, image: "images/art/product24.jpg" },
-  { id: 25, category: "ART", name: "Christus der Erlöser", price: 40, image: "images/art/product25.jpg" },
-  { id: 26, category: "ART", name: "Kosmonaut", price: 40, image: "images/art/product26.jpg" },
-  { id: 27, category: "ART", name: "Fußballer", price: 40, image: "images/art/product27.jpg" },
-  { id: 28, category: "ART", name: "Tulpen", price: 40, image: "images/art/product28.jpg" },
-  { id: 29, category: "ART", name: "Bambi", price: 40, image: "images/art/product29.jpg" },
-  { id: 30, category: "ART", name: "Samurai", price: 40, image: "images/art/product30.jpg" },
-  { id: 31, category: "ART", name: "Mutter mit Baby", price: 40, image: "images/art/product31.jpg" },
-  { id: 32, category: "ART", name: "Galatasaray S.K", price: 35, image: "images/art/product32.jpg" },
-  { id: 33, category: "ART", name: "Frau mit Reh", price: 40, image: "images/art/product33.jpg" },
-  { id: 34, category: "ART", name: "Schweißer", price: 40, image: "images/art/product34.jpg" },
-  { id: 35, category: "ART", name: "Eiffelturm", price: 40, image: "images/art/product35.jpg" },
-  { id: 36, category: "ART", name: "Landschaft", price: 40, image: "images/art/product36.jpg" },
-  { id: 37, category: "ART", name: "Real Madrid CF", price: 35, image: "images/art/product37.jpg" },
-  { id: 38, category: "ART", name: "Fischen", price: 40, image: "images/art/product38.jpg" },
-  { id: 39, category: "ART", name: "Frau mit einem Tropfen", price: 40, image: "images/art/product39.jpg" },
-  { id: 40, category: "ART", name: "Frau auf einer Schaukel", price: 40, image: "images/art/product40.jpg" },
-  { id: 41, category: "ART", name: "Das Kamel", price: 40, image: "images/art/product41.jpg" },
-  { id: 42, category: "ART", name: "Der springende Fisch", price: 40, image: "images/art/product42.jpg" },
-  { id: 43, category: "ART", name: "Bear", price: 40, image: "images/art/product43.jpg" },
-  { id: 44, category: "ART", name: "Manchester United", price: 35, image: "images/art/product44.jpg" },
-  { id: 45, category: "ART", name: "Borusia Dortmund", price: 35, image: "images/art/product45.jpg" },
-  { id: 46, category: "ART", name: "Barselona", price: 35, image: "images/art/product46.jpg" },
-  { id: 47, category: "ART", name: "Das Schloss", price: 40, image: "images/art/product47.jpg" },
-  { id: 48, category: "ART", name: "Liverpool", price: 35, image: "images/art/product48.jpg" },
-  { id: 49, category: "ART", name: "Baum des Lebens", price: 45, image: "images/art/product49.jpg" },
-  { id: 50, category: "ART", name: "Die Freiheitsstatue", price: 40, image: "images/art/product50.jpg" }
-];
-
-artProducts.forEach((p) => {
-  p.colors = ["Schwarz", "Dunkelgold"];
-  p.defaultColor = "Dunkelgold";
-});
-
-const allProducts = [...weinProducts, ...artProducts];
 
 // =====================
 // STICKY CTA (mobile)
@@ -162,12 +74,15 @@ function updateStickyCTA(product, color) {
   const wa = el.querySelector("#stickyCtaWA");
   const mail = el.querySelector("#stickyCtaMail");
 
+  const isArt = product.category === "ART";
+  const colorToSend = isArt ? (color || ART_DEFAULT_COLOR) : null;
+
   const priceText = formatPriceEUR(product.price);
   title.textContent = product.name;
-  sub.textContent = `${priceText}${product.category === "ART" ? ` • Farbe: ${color || "Dunkelgold"}` : ""}`;
+  sub.textContent = `${priceText}${isArt ? ` • Farbe: ${colorToSend}` : ""}`;
 
-  wa.href = buildWhatsAppLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
-  mail.href = buildEmailLink(product, product.category === "ART" ? (color || "Dunkelgold") : null);
+  wa.href = buildWhatsAppLink(product, colorToSend);
+  mail.href = buildEmailLink(product, colorToSend);
 }
 
 function enableSmartSticky() {
@@ -207,7 +122,7 @@ function renderProduct(product) {
   if (nf) nf.style.display = "none";
 
   const isArt = product.category === "ART";
-  let selectedColor = isArt ? (product.defaultColor || "Dunkelgold") : null;
+  let selectedColor = isArt ? (product.defaultColor || ART_DEFAULT_COLOR) : null;
 
   const priceText = formatPriceEUR(product.price);
 
@@ -225,9 +140,9 @@ function renderProduct(product) {
               ? `
             <div class="color-options" data-color-options>
               <button type="button" class="color-btn ${selectedColor === "Schwarz" ? "active" : ""}" data-color="Schwarz">Schwarz</button>
-              <button type="button" class="color-btn ${selectedColor === "Dunkelgold" ? "active" : ""}" data-color="Dunkelgold">Dunkelgold</button>
+              <button type="button" class="color-btn ${selectedColor === ART_DEFAULT_COLOR ? "active" : ""}" data-color="${ART_DEFAULT_COLOR}">${ART_DEFAULT_COLOR}</button>
             </div>
-            <div class="color-note">Hinweis: Foto zeigt Dunkelgold. Andere Farben werden nach Auswahl gefertigt.</div>
+            <div class="color-note">${ART_COLOR_NOTE}</div>
           `
               : ""
           }
@@ -252,7 +167,7 @@ function renderProduct(product) {
   const mailLink = root.querySelector(".btn-mail");
 
   function refreshLinks() {
-    const colorToSend = isArt ? selectedColor : null;
+    const colorToSend = isArt ? (selectedColor || ART_DEFAULT_COLOR) : null;
     waLink.href = buildWhatsAppLink(product, colorToSend);
     mailLink.href = buildEmailLink(product, colorToSend);
   }
@@ -295,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const product = allProducts.find((p) => p.category === cat && Number(p.id) === id);
+  const product = getProduct(cat, id);
   if (!product) {
     showNotFound();
     return;
