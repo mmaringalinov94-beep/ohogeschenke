@@ -273,6 +273,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const product = cat && Number.isFinite(id) ? findProduct(cat, id) : null;
 
   renderProduct(product);
-});
+});// Smart show/hide Sticky CTA (only when main CTA is not visible)
+const sticky = document.getElementById("stickyCta");
+const mainActions = document.querySelector(".product-page-actions");
+
+if (sticky && mainActions && "IntersectionObserver" in window) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      const isVisible = entries[0].isIntersecting;
+      // If main CTA is visible -> hide sticky, else show sticky
+      sticky.style.display = isVisible ? "none" : "";
+    },
+    { threshold: 0.15 }
+  );
+  io.observe(mainActions);
+}
+
 // Sticky CTA (mobile)
 updateStickyCTA(product, isArt ? selectedColor : null);
