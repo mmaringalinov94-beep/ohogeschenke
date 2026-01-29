@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mmaringalinov94-beep.github.io/ohogeschenke/sitemap.xml
+Add robots.txt for SEO
