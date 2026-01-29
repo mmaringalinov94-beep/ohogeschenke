@@ -539,9 +539,112 @@ document.addEventListener("DOMContentLoaded", () => {
   // only run on products page
   const productsContainer = document.getElementById("products");
   if (!productsContainer) return;
+// ===== Quick View Sticky CTA (mobile only) =====
+const QV_STICKY_BREAKPOINT = 768;
+
+function isMobileViewport() {
+  return window.innerWidth <= QV_STICKY_BREAKPOINT;
+}
+
+function buildInquiryText(product, selectedColor) {
+  const lines = [
+    `Produkt: ${product.name}`,
+    `Preis: ${product.price}`,
+  ];
+
+  if (product.category === "ART") {
+    lines.push(`Farbe: ${selectedColor || "Dunkelgold"}`);
+  }
+
+  return lines.join("\n");
+}
+
+function buildWhatsAppHref(text) {
+  const phone = "4915226216596";
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+}
+
+function buildEmailHref(text) {
+  const to = "mmaringalinov94@gmail.com";
+  const subject = "Anfrage Ohogeschenke";
+  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
+}
+
+function qvStickyEls() {
+  return {
+    root: document.getElementById("qvStickyCta"),
+    wa: document.getElementById("qvStickyWhatsApp"),
+    mail: document.getElementById("qvStickyEmail"),
+  };
+}
+
+function showQvSticky() {
+  const { root } = qvStickyEls();
+  if (!root) return;
+
+  // show only on mobile
+  if (!isMobileViewport()) {
+    hideQvSticky();
+    return;
+  }
+
+  root.classList.remove("is-hidden");
+  root.setAttribute("aria-hidden", "false");
+  document.body.classList.add("has-sticky-cta");
+}
+
+function hideQvSticky() {
+  const { root } = qvStickyEls();
+  if (!root) return;
+
+  root.classList.add("is-hidden");
+  root.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("has-sticky-cta");
+}
+
+function updateQvSticky(product, selectedColor) {
+  const { wa, mail, root } = qvStickyEls();
+  if (!wa || !mail || !root) return;
+
+  const text = buildInquiryText(product, selectedColor);
+  wa.href = buildWhatsAppHref(text);
+  mail.href = buildEmailHref(text);
+}
+let qvCurrentProduct = null;
+let qvSelectedColor = "Dunkelgold"; // default for ART
+
+function openQuickView(product) {
+  qvCurrentProduct = product;
+  qvSelectedColor = (product.category === "ART") ? "Dunkelgold" : null;
+
+  // ... твоя existing modal render/open код ...
+  // renderQuickViewModal(product)
+
+  updateQvSticky(qvCurrentProduct, qvSelectedColor);
+  showQvSticky();
+
+  // Ако имаш в модала dropdown/radio за цветове:
+  const colorInput = document.querySelector("#quickViewModal [name='artColor']");
+  if (colorInput) {
+    colorInput.addEventListener("change", (e) => {
+      qvSelectedColor = e.target.value || "Dunkelgold";
+      updateQvSticky(qvCurrentProduct, qvSelectedColor);
+    });
+  }
+}
+
+function closeQuickView() {
+  // ... твоя existing close код ...
+  // closeModal()
+
+  qvCurrentProduct = null;
+  qvSelectedColor = "Dunkelgold";
+  hideQvSticky();
+}
 
   restoreStateFromStorage();
   ensureControls();
   applyAndRender();
   persistState();
 });
+
